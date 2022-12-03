@@ -11,6 +11,18 @@ export class Player {
         });
     };
 
+    getAllShipIndex() {
+        return this.board.getPlaced();
+    }
+
+    getMissIndex() {
+        return this.board.getMiss();
+    }
+
+    getHitIndex() {
+        return this.board.getHit();
+    }
+
     // confirms if player is defeated
     isDefeated() {
         return this.board.isSunk();

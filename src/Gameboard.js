@@ -7,6 +7,7 @@ export class Gameboard {
         this.board = [];
         this.allHit = [];
         this.allMiss = [];
+        this.allPlaced = [];
         for (let i = 0; i < size * size; i++) {
             this.board.push({ship: null, hit: false})
         }
@@ -18,6 +19,10 @@ export class Gameboard {
 
     getMiss() {
         return this.allMiss;
+    }
+
+    getPlaced() {
+        return this.allPlaced;
     }
 
     getSize() {
@@ -42,7 +47,10 @@ export class Gameboard {
         };
 
         const newShip = new Ship(shipSize);
-        toPlace.forEach(index => { this.board[index].ship = newShip });
+        toPlace.forEach(index => {
+            this.allPlaced.push(index);
+            this.board[index].ship = newShip
+        });
         this.allShips.push(toPlace);
         return newShip;
     }

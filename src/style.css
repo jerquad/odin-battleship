@@ -5,9 +5,16 @@
     --font-guide-sm: .7rem;
     --gap-lg: 3px;
     --gap-sm: 2px;
-    --button-border: black;
+    --button-fg-disable: grey;
+    --button-fg-normal: black;
+    --button-bg-disable: darkgrey;
     --button-bg-normal: white;
     --button-font-size: 2rem;
+    --board-hit: darkred;
+    --board-hover: aqua;
+    --board-miss: grey;
+    --board-selected: yellow;
+    --board-ship: green;
     --side-size: 10;
 }
 
@@ -24,8 +31,15 @@ body {
 
 button {
     background-color: var(--button-bg-normal);
-    border: 5px solid var(--button-border);
+    color: var(--button-fg-normal);
+    border: 5px solid var(--button-fg-normal);
     font-size: var(--button-font-size);
+}
+
+button:disabled {
+    background-color: var(--button-bg-disable);
+    color: var(--button-fg-disable);
+    border-color: var(--button-fg-disable);
 }
 
 #board-box {
@@ -80,16 +94,35 @@ button {
     font-size: var(--font-guide-lg);
     aspect-ratio: 1 / 1;
     width: 100%;
-    /* height: 500px; */
     gap: var(--gap-lg);
 }
 
 #grid-play > .open-cell:hover {
-    background-color: aqua !important;
+    background-color: var(--board-hover) !important;
 }
 
 #play-button {
     width: 100%;
+}
+
+.ship {
+    background-color: var(--board-ship) !important;
+}
+
+.miss {
+    background-color: var(--board-miss) !important;
+}
+
+.hit {
+    background-color: var(--board-hit) !important;
+}
+
+.selected {
+    background-color: var(--board-selected) !important;
+}
+
+.selected:hover {
+    background-color: var(--board-selected) !important;
 }
 
 @media (min-width: 650px) {

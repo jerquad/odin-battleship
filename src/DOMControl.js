@@ -12,7 +12,7 @@ export function renderBoard() {
     const boardBox = makeElement('div', { id: 'board-box' });
     const statusArea = buildGrid(10);
     const playArea = buildGrid(10);
-    const playButton = makeElement('button', { id: 'play-button' }, 'SELECT TARGET');
+    const playButton = makeElement('button', { id: 'play-button', disabled: 'true' }, 'SELECT TARGET');
 
     statusArea.setAttribute('id', 'grid-status');
     playArea.setAttribute('id', 'grid-play');
@@ -29,11 +29,12 @@ function buildGrid(sideSize) {
     const gridBox = makeElement('div', { class: 'grid-box' });
     let colValue = 65;
     let rowValue = 1;
+    let cellIndex = 0;
     for (let i = 0; i < SIZE; i++) { 
         if (i === 0) { gridBox.appendChild(makeElement('div', { class: 'guide-corner' })) }
         else if (i <= sideSize) { gridBox.appendChild(makeElement('div', { class: 'guide-top' }, String.fromCharCode(colValue++))) }
         else if (i % (sideSize + 1) === 0) { gridBox.appendChild(makeElement('div', { class: 'guide-left'}, rowValue++)) }
-        else { gridBox.appendChild(makeElement('div', { class: 'open-cell' })) };
+        else { gridBox.appendChild(makeElement('div', { class: 'open-cell', 'data-index': cellIndex++ })) };
     }
 
     // Find a better home for this
