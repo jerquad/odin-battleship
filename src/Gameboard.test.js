@@ -1,5 +1,12 @@
 import { Gameboard } from './Gameboard.js';
 
+describe('Confirm size of board', () => {
+    test('board size of 10 returns 100', () => {
+        const board = new Gameboard(10);
+        expect(board.getSize()).toBe(100);
+    })
+})
+
 describe('Place ships on gameboard', () => {
     test('will place ship in valid horizontal space', () => {
         const board = new Gameboard(10);
@@ -83,6 +90,24 @@ describe('receiveAttack function works as intended', () => {
         board.receiveAttack(0);
         board.receiveAttack(0);
         expect(board.board[0].ship.getHits()).toBe(1);
+    });
+
+    test('calling receiveAttack returns a ship on hit or null otherwise', () => {
+        const board = new Gameboard(10);
+        const ship = board.addShip(5, 0);
+        expect(board.receiveAttack(2)).toBe(ship);
+        expect(board.receiveAttack(15)).toBe(null);
+    });
+
+    test('receiveAttack returns different ships', () => {
+        const board= new Gameboard(10);
+        const ship1 = board.addShip(5,0);
+        const ship2 = board.addShip(5, 30);
+        const hitShip1 = board.receiveAttack(2);
+        expect(hitShip1).toBe(ship1);
+        expect(hitShip1).not.toBe(ship2);
+        expect(board.receiveAttack(33)).not.toBe(ship1);
+        expect(board.receiveAttack(32)).toBe(ship2);
     });
 });
 

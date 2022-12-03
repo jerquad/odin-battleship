@@ -20,7 +20,15 @@ export class Gameboard {
         return this.allMiss;
     }
 
-    // place new ship on gameboard returns false if not legal placement
+    getSize() {
+        return this.SIZE * this.SIZE;
+    }
+
+    isHit(index) {
+        return this.board[index].hit;
+    }
+
+    // place new ship on gameboard returns ship or false if not legal placement
     addShip(shipSize, head, vertical = false) {
         // disallow placement beyond board's boundaries
         if (!vertical && ((head % this.SIZE) + shipSize > this.SIZE)) return false;
@@ -36,7 +44,7 @@ export class Gameboard {
         const newShip = new Ship(shipSize);
         toPlace.forEach(index => { this.board[index].ship = newShip });
         this.allShips.push(toPlace);
-        return true;
+        return newShip;
     }
 
     // returns an array of a ship's sequential positioning
@@ -62,13 +70,15 @@ export class Gameboard {
         if (index < 0 || index >= this.board.length) { throw new RangeError(`value must be between 0 and ${this.board.length - 1}`); }
         if (this.board[index].hit) { return; }
 
+        this.board[index].hit = true;
         if (this.board[index].ship) {
             this.board[index].ship.hit();
             this.allHit.push(index);
+            return this.board[index].ship;
         } else {
             this.allMiss.push(index);
+            return null;
         }
-        this.board[index].hit = true;
     }
 
     // confirms that the ship at each front position in allShips is sunk
