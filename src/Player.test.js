@@ -58,3 +58,39 @@ describe('isValidMove confirms if a move is allowed', () => {
         expect(player.isValidMove(15)).toBeFalsy();
     })
 });
+
+describe('randomMove picks within correct border, will not elect invalid moves', () => {
+    
+    test('randomMove picks within board size', () => {
+        const player = new Player();
+        for (let i = 0; i < 1000; i++) {
+            const result = player.randomMove();
+            expect(result).toBeGreaterThanOrEqual(0);
+            expect(result).toBeLessThan(100);
+        }
+    });
+
+    test('randomMove will not elect invalid moves', () => {
+        const player = new Player([[5, 0 , false]]);
+        expect(player.isDefeated()).toBeFalsy();
+        for (let i = 0; i < 100; i++) {
+            const result = player.randomMove();
+            expect(player.isValidMove(result)).toBeTruthy();
+            player.takeHit(result);
+        }
+        expect(player.isDefeated()).toBeTruthy();
+    });
+});
+
+describe('cpuTurn adds missed results correctly', () => {
+    const player = new Player();
+    const tests = [];
+    for (let i = 0; i < 100; i++) {
+        tests.push(i);
+    }
+    test.each(tests)('cpuTurn correctly marks misses', (i) => {
+        const result = player.cpuTurn();
+        expect(player.getMissIndex().length).toBe(i + 1);
+        expect(player.getMissIndex().includes(result)).toBeTruthy();       
+    })
+})

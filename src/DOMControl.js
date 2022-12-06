@@ -7,26 +7,63 @@ function makeElement(type, properties = {}, inner = null) {
     return element;
 }
 
-// Create the primary play area of the game
-export function renderBoard() {
-    const boardBox = makeElement('div', { id: 'board-box' });
+export class PlayBoard {
+    constructor(size) {
+        this.boardBox = makeElement('div', { class: 'board-box' });
+        this.boardBox.appendChild(buildGrid(size, 'grid-play'));
+        this.boardBox.appendChild(buildGrid(size, 'grid-status'))
+        this.boardBox.appendChild(makeElement('button', { class: 'play-button', disabled: 'true' }));
+    }
+    
+    getContainer() { return this.boardBox; }
+    getPlay() { return this.boardBox.querySelector('.grid-play'); }
+    getStatus() { return this.boardBox.querySelector('.grid-status'); }
+
+    addClassPlay(index, toAdd) { this.getPlay().children.item(this.adjustToIndex(index)).classList.add(toAdd); }
+    addClassStatus(index, toAdd) { this.getStatus().children.item(this.adjustToIndex(index)).classList.add(toAdd); }
+    removeClassPlay(index, toRemove) { this.getPlay().children.item(this.adjustToIndex(index)).classList.remove(toRemove); }
+    removeClassStatus(index, toRemove) { this.getStatus().children.item(this.adjustToIndex(index)).classList.remove(toRemove); }
+    
+    adjustToIndex(index) { return (this.SIZE + 1) * (index / this.SIZE + 1) + 1; }
+
+    bindButton(callback) {
+        this.boardBox.querySelector('.play-button').addEventListener('click', () => callback);      
+    }
+}
+
+export function makeBoard() {
+    const boardBox = makeElement('div', { class: 'board-box' });
     const statusArea = buildGrid(10);
     const playArea = buildGrid(10);
-    const playButton = makeElement('button', { id: 'play-button', disabled: 'true' }, 'SELECT TARGET');
+    const playButton = makeElement('button', { class: 'play-button', disabled: 'true' }, 'SELECT TARGET');
 
-    statusArea.setAttribute('id', 'grid-status');
-    playArea.setAttribute('id', 'grid-play');
+    statusArea.classList.add('grid-status');
+    playArea.classList.add('grid-play');
+
+    // statusArea.setAttribute('id', 'grid-status');
+    // playArea.setAttribute('id', 'grid-play');
     
     boardBox.appendChild(statusArea);
     boardBox.appendChild(playArea);
     boardBox.appendChild(playButton);
-    document.body.appendChild(boardBox);
+
+    return boardBox;
+}
+
+export function renderAction(board, result, index) {
+    board.children.item(index).classList.add((result === null) ? 'miss' : 'hit');
+}
+
+// Create the primary play area of the game
+export function renderBoard(board) {
+    document.body.appendChild(board);
 }
 
 // create a variably sized grid with guide measures on top and left hand side
-function buildGrid(sideSize) {
+function buildGrid(sideSize, addClass) {
     const SIZE = Math.pow(sideSize + 1, 2);
     const gridBox = makeElement('div', { class: 'grid-box' });
+    if (addClass) { gridBox.classList.add(addClass); }
     let colValue = 65;
     let rowValue = 1;
     let cellIndex = 0;
@@ -41,5 +78,17 @@ function buildGrid(sideSize) {
     document.querySelector(':root').style.setProperty('--side-size', sideSize + 1);
     
     return gridBox;
+}
 
+// creates a win/lose result with a replay button
+export function renderWinLose(result) {
+    const resultBox = makeElement('div', { id: 'result-box' });
+    const displayArea = makeElement('div', { id: 'result-display' })
+    const resultMsg = makeElement('h1');
+    const replayBtn = makeElement('button', { id: 'replay-button' }, 'PLAY AGAIN?');
+    resultMsg.innerHTML = (result) ? 'YOU WIN' : 'YOU LOSE';
+    displayArea.appendChild(resultMsg);
+    displayArea.appendChild(replayBtn);
+    resultBox.appendChild(displayArea);
+    return resultBox;
 }
