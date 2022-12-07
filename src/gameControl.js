@@ -14,7 +14,13 @@ export class GameControl {
     // begin the gameloop
     startGame() {
         this.dummySetPlayer();
-        this.getPlayer().getDisplay().displayBoard();
+        const board = this.getPlayer().getDisplay();
+        if (this.multiplayer) {
+            board.createTurnCover(this.getPlayer()
+                .getName())
+                .addEventListener('click', (e) => board.clearTurnCover());
+        };
+        board.displayBoard();
     }
 
     // testing values
@@ -75,10 +81,13 @@ export class GameControl {
         const result = this.getAdversary().takeHit(this.selectMove);
         this.getPlayer().getDisplay().updatePlay(this.selectMove, result);
         if (this.getAdversary().isDefeated()) { 
-            this.getPlayer().getDisplay().createGameOver('YOU WIN!').addEventListener('click', (e) => {
-                this.getPlayer().getDisplay().removeBoard();
-                this.resetGame();
-                this.startGame();
+            this.getPlayer()
+                .getDisplay()
+                .createGameOver('YOU WIN!')
+                .addEventListener('click', (e) => {
+                    this.getPlayer().getDisplay().removeBoard();
+                    this.resetGame();
+                    this.startGame();
             }); 
         }
         else if (this.multiplayer) { this.switchTurn(result); }
@@ -94,7 +103,9 @@ export class GameControl {
     // Prepares the play area to exchange players
     switchTurn(result) {
         const board = this.getAdversary().getDisplay();
-        board.createTurnCover(this.getPlayer().getName()).addEventListener('click', (e) => {
+        board.createTurnCover(this.getAdversary()
+        .getName())
+        .addEventListener('click', (e) => {
             board.clearTurnCover();
             this.startTurn(result);
         });
@@ -107,8 +118,9 @@ export class GameControl {
     cpuTurn() {
         this.selectMove = this.getPlayer().cpuTurn();
         const result = this.getPlayer().takeHit(this.selectMove);
-        if (this.getPlayer().isDefeated()) { this.getPlayer().getDisplay().createGameOver('YOU LOSE!'); }
-        else { this.startTurn(result); }
+        if (this.getPlayer().isDefeated()) { 
+            this.getPlayer().getDisplay().createGameOver('YOU LOSE!'); 
+        } else { this.startTurn(result); }
     }
 
     // populates a result popup and binds a replay button
