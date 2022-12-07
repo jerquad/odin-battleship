@@ -1,19 +1,21 @@
 import { Gameboard } from "./Gameboard";
-
+import { PlayBoard } from "./DOMControl";
 // holds player's gameboard, can determine next move if cpu 
 // pass an array of arrays in [ship size, ship index, is vertical(true/false)] format
 // to populate the gameboard
 export class Player {
-    constructor(name, toAdd = [], display) {
+    constructor(name, toAdd = []) {
         this.SIZE = 10;
         this.name = name;
-        this.display = display();
         this.board = new Gameboard(this.SIZE);
         this.nextMove = [];
-        toAdd.forEach(ship => {
-            this.board.addShip(ship[0], ship[1], ship[2])
-        });
+        toAdd.forEach(ship => this.board.addShip(ship[0], ship[1], ship[2]) );
+        this.display = new PlayBoard(this.SIZE, this.getAllShipIndex());
     };
+
+    getName() {
+        return this.name;
+    }
 
     getDisplay() {
         return this.display;
@@ -38,7 +40,7 @@ export class Player {
 
     // returns either the hit ship or null
     takeHit(index) {
-        return this.board.receiveAttack(index);
+        return (this.board.receiveAttack(index)) ? 'hit' : 'miss';
     }
 
     // confirms if a move is valid

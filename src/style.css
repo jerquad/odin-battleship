@@ -23,10 +23,11 @@ html {
 }
 
 body {
-    margin: .5rem;
+    margin: 0;
     height: 100%;
     display: flex;
     justify-content: center;
+    align-items: center;
 }
 
 button {
@@ -43,6 +44,7 @@ button:disabled {
 }
 
 .board-box {
+    margin: 0 .5rem;
     width: 100%;
     height: min-content;
     display: grid;
@@ -52,17 +54,26 @@ button:disabled {
     gap: 1rem;
 }
 
-#result-box {
+.gameover-container,
+.turn-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: transparent;
     position: absolute;
     width: 100%;
     height: 100%;
 }
 
-#result-display {
+.gameover-container {
+    background-color: transparent;
+}
+
+.turn-container {
+    background-color: white;
+}
+
+.gameover-content,
+.turn-content {
     text-align: center;
     background-color: white;
     display: flex;
@@ -71,7 +82,6 @@ button:disabled {
 }
 
 .grid-box {
-    /* z-index: 0; */
     background-color: var(--bg-grid);
     display: grid;
     grid-template-columns: repeat(var(--side-size), 1fr);
@@ -98,6 +108,7 @@ button:disabled {
 }
 
 .grid-status {
+    grid-row: 1 / 2;
     font-size: var(--font-guide-sm);
     aspect-ratio: 1 / 1;
     width: 50%;
@@ -143,10 +154,7 @@ button:disabled {
     background-color: var(--board-selected) !important;
 }
 
-@media (min-width: 650px) {
-    body {
-        align-items: center;
-    }
+@media (min-width: 570px) {
 
     .board-box {
         max-width: 1000px;

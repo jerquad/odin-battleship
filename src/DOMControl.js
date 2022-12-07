@@ -7,56 +7,86 @@ function makeElement(type, properties = {}, inner = null) {
     return element;
 }
 
+// Display for the general play area
 export class PlayBoard {
-    constructor(size) {
+    constructor(size, allShips) {
+        this.SIZE = size;
         this.boardBox = makeElement('div', { class: 'board-box' });
         this.boardBox.appendChild(buildGrid(size, 'grid-play'));
         this.boardBox.appendChild(buildGrid(size, 'grid-status'))
-        this.boardBox.appendChild(makeElement('button', { class: 'play-button', disabled: 'true' }));
+        this.boardBox.appendChild(makeElement('button', { class: 'play-button', disabled: 'true' }, 'SELECT TARGET'));
+        allShips.forEach(index => {
+            this.updateStatus(index, 'ship');
+        })
     }
     
+    // getters for board elements
     getContainer() { return this.boardBox; }
     getPlay() { return this.boardBox.querySelector('.grid-play'); }
     getStatus() { return this.boardBox.querySelector('.grid-status'); }
-
-    addClassPlay(index, toAdd) { this.getPlay().children.item(this.adjustToIndex(index)).classList.add(toAdd); }
-    addClassStatus(index, toAdd) { this.getStatus().children.item(this.adjustToIndex(index)).classList.add(toAdd); }
-    removeClassPlay(index, toRemove) { this.getPlay().children.item(this.adjustToIndex(index)).classList.remove(toRemove); }
-    removeClassStatus(index, toRemove) { this.getStatus().children.item(this.adjustToIndex(index)).classList.remove(toRemove); }
+    getButton() { return this.boardBox.querySelector('.play-button'); }
     
+    // Helpers to handle the displayed guides
     adjustToIndex(index) { return (this.SIZE + 1) * (index / this.SIZE + 1) + 1; }
+    getGuideIndex(index) { return String.fromCharCode(65 + (index % this.SIZE)).concat(Math.floor(index / this.SIZE) + 1); }
 
-    bindButton(callback) {
-        this.boardBox.querySelector('.play-button').addEventListener('click', () => callback);      
+    displayBoard() { document.body.appendChild(this.getContainer()); }
+    removeBoard() { document.querySelector('.board-box').remove(); }
+
+    // set the display's button text and disabled status
+    setButton(index) {
+        this.getButton().disabled = (index) ? false : true;
+        this.getButton().innerHTML = (index) ? `ATTACK ${this.getGuideIndex(index)}` : `SELECT TARGET`; 
+    };
+
+    // switches a cell from open to selected
+    toggleSelected(index) {
+        const cell = this.getPlay().children.item(this.adjustToIndex(index));
+        cell.classList.toggle('open-cell');
+        cell.classList.toggle('selected');
     }
-}
 
-export function makeBoard() {
-    const boardBox = makeElement('div', { class: 'board-box' });
-    const statusArea = buildGrid(10);
-    const playArea = buildGrid(10);
-    const playButton = makeElement('button', { class: 'play-button', disabled: 'true' }, 'SELECT TARGET');
+    // set class for cell in the play grid
+    updatePlay(index, toUpdate) {
+        const cell = this.getPlay().children.item(this.adjustToIndex(index));
+        cell.classList.remove('selected');
+        cell.classList.add(toUpdate);
+    }
 
-    statusArea.classList.add('grid-status');
-    playArea.classList.add('grid-play');
+    // set class for cell in the status grid
+    updateStatus(index, toUpdate) {
+        const cell = this.getStatus().children.item(this.adjustToIndex(index));
+        cell.classList.add(toUpdate);
+    }
 
-    // statusArea.setAttribute('id', 'grid-status');
-    // playArea.setAttribute('id', 'grid-play');
-    
-    boardBox.appendChild(statusArea);
-    boardBox.appendChild(playArea);
-    boardBox.appendChild(playButton);
+    // display a privacy cover on turn switch-offs, takes a string for player's name, returns button
+    createTurnCover(player) {
+        const container = makeElement('div', { class: 'turn-container' });
+        const content = makeElement('div', { class: 'turn-content' });
+        const button = makeElement('button', { class: 'turn-button' }, 'READY');
+        content.appendChild(makeElement('h1', {}, `${player.toUpperCase()}'s`));
+        content.appendChild(makeElement('h1', {}, 'TURN'));
+        content.appendChild(button);
+        container.appendChild(content);
+        this.getContainer().appendChild(container);
+        return button;
+    }
 
-    return boardBox;
-}
+    clearTurnCover() {
+        this.getContainer().querySelector('.turn-container').remove();
+    }
 
-export function renderAction(board, result, index) {
-    board.children.item(index).classList.add((result === null) ? 'miss' : 'hit');
-}
-
-// Create the primary play area of the game
-export function renderBoard(board) {
-    document.body.appendChild(board);
+    // display a gameover message with custon result string, returns button for binding
+    createGameOver(result) {
+        const container = makeElement('div', { class: 'gameover-container' });
+        const content = makeElement('div', { class: 'gameover-content' });
+        const button = makeElement('button', { class: 'gameover-button' }, 'PLAY AGAIN?')
+        content.appendChild(makeElement('h1', {}, result));
+        content.appendChild(button);
+        container.appendChild(content);
+        this.getContainer().appendChild(container);
+        return button;
+    }
 }
 
 // create a variably sized grid with guide measures on top and left hand side
