@@ -7,31 +7,106 @@ function makeElement(type, properties = {}, inner = null) {
     return element;
 }
 
+function adjustToIndex(index, size) { 
+    return (size + 1) * (index / size + 1) + 1;
+}
+
+export function initializeDOM() {
+    const container = makeElement('div', { id: 'main-container' });
+    const setPlayer = new SetPlayer(10, [5, 4, 3, 3, 2]);
+    document.body.appendChild(container);
+    setPlayer.display();
+}
+
+// Display for initialziing a player
+export class SetPlayer {
+    constructor(size, pieces) {
+        this.SIZE = size;
+        this.container = makeElement('div', { id: 'set-container' });
+        this.container.appendChild(buildGrid(size, 'set-grid'));
+        this.container.appendChild(this.makeTray(pieces));
+    }
+
+    getContainer() { return this.container; }
+    getGrid() { return this.getContainer().querySelector('.set-grid'); }
+    getTray() { return this.getContainer().querySelector('.set-tray'); }
+
+    display() { 
+        document.querySelector('#main-container').appendChild(this.getContainer()); 
+        this.setTrayIconSize()
+        window.onresize = function() {
+            const height = document.querySelector('.set-grid').children.item(11).clientHeight;
+            document.querySelectorAll('.icon-cell').forEach(cell => {
+                cell.style.height = `${height}px`;
+            })
+        }
+    }
+    remove() { document.querySelector('#set-container').remove(); }
+
+    setTrayIconSize() {
+        const height = this.getGrid().children.item(adjustToIndex(0, this.SIZE)).clientHeight;
+        document.querySelectorAll('.icon-cell').forEach(cell => {
+            cell.style.height = `${height}px`;
+        })
+    }
+
+    makeTray(pieces) {
+        const tray = makeElement('div', { class: 'set-tray' });
+        for (let i = 0, j = Math.floor((pieces.length) / 2); j < pieces.length; i++, j++) {
+            if (i < Math.floor(pieces.length) / 2) { 
+                tray.appendChild(this.makeTrayItem(pieces[i]));
+            }
+            tray.appendChild(this.makeTrayItem(pieces[j]));
+        }
+        return tray;
+    }
+
+    makeTrayItem(piece) {
+        const item = makeElement('div', { id: 'test', class: 'tray-item' })
+        item.appendChild(this.makePieceIcon(piece));
+        return item;
+    }
+
+    makePieceIcon(size) {
+        const icon = makeElement('div', { class: 'icon-piece' });
+        for (let i = 0; i < size; i++) {
+            const cell = makeElement('div', { class: 'icon-cell' });
+
+            // cell.style.height = '50px'
+            // console.log(this.getGrid().children.item(adjustToIndex(0, this.SIZE)));
+            // cell.addEventListener('')
+            // cell.style.height = `${this.getGrid().children.item(adjustToIndex(0, this.SIZE)).clientHeight}px`;
+            icon.appendChild(cell);
+        }
+        return icon;
+    }
+
+}
+
 // Display for the general play area
 export class PlayBoard {
     constructor(size, allShips) {
         this.SIZE = size;
-        this.boardBox = makeElement('div', { class: 'board-box' });
-        this.boardBox.appendChild(buildGrid(size, 'grid-play'));
-        this.boardBox.appendChild(buildGrid(size, 'grid-status'))
-        this.boardBox.appendChild(makeElement('button', { class: 'play-button', disabled: 'true' }, 'SELECT TARGET'));
+        this.container = makeElement('div', { class: 'play-container' });
+        this.container.appendChild(buildGrid(size, 'play-area'));
+        this.container.appendChild(buildGrid(size, 'play-status'))
+        this.container.appendChild(makeElement('button', { class: 'play-button', disabled: 'true' }, 'SELECT TARGET'));
         allShips.forEach(index => {
             this.updateStatus(index, 'ship');
         })
     }
     
     // getters for board elements
-    getContainer() { return this.boardBox; }
-    getPlay() { return this.boardBox.querySelector('.grid-play'); }
-    getStatus() { return this.boardBox.querySelector('.grid-status'); }
-    getButton() { return this.boardBox.querySelector('.play-button'); }
+    getContainer() { return this.container; }
+    getPlay() { return this.getContainer().querySelector('.play-area'); }
+    getStatus() { return this.getContainer().querySelector('.play-status'); }
+    getButton() { return this.getContainer().querySelector('.play-button'); }
     
     // Helpers to handle the displayed guides
-    adjustToIndex(index) { return (this.SIZE + 1) * (index / this.SIZE + 1) + 1; }
     getGuideIndex(index) { return String.fromCharCode(65 + (index % this.SIZE)).concat(Math.floor(index / this.SIZE) + 1); }
 
     displayBoard() { document.body.appendChild(this.getContainer()); }
-    removeBoard() { document.querySelector('.board-box').remove(); }
+    removeBoard() { document.querySelector('.play-container').remove(); }
 
     // set the display's button text and disabled status
     setButton(index) {
@@ -41,21 +116,21 @@ export class PlayBoard {
 
     // switches a cell from open to selected
     toggleSelected(index) {
-        const cell = this.getPlay().children.item(this.adjustToIndex(index));
+        const cell = this.getPlay().children.item(adjustToIndex(index, this.SIZE));
         cell.classList.toggle('open-cell');
         cell.classList.toggle('selected');
     }
 
     // set class for cell in the play grid
     updatePlay(index, toUpdate) {
-        const cell = this.getPlay().children.item(this.adjustToIndex(index));
+        const cell = this.getPlay().children.item(adjustToIndex(index, this.SIZE));
         cell.classList.remove('selected');
         cell.classList.add(toUpdate);
     }
 
     // set class for cell in the status grid
     updateStatus(index, toUpdate) {
-        const cell = this.getStatus().children.item(this.adjustToIndex(index));
+        const cell = this.getStatus().children.item(adjustToIndex(index, this.SIZE));
         cell.classList.add(toUpdate);
     }
 
@@ -110,15 +185,3 @@ function buildGrid(sideSize, addClass) {
     return gridBox;
 }
 
-// creates a win/lose result with a replay button
-export function renderWinLose(result) {
-    const resultBox = makeElement('div', { id: 'result-box' });
-    const displayArea = makeElement('div', { id: 'result-display' })
-    const resultMsg = makeElement('h1');
-    const replayBtn = makeElement('button', { id: 'replay-button' }, 'PLAY AGAIN?');
-    resultMsg.innerHTML = (result) ? 'YOU WIN' : 'YOU LOSE';
-    displayArea.appendChild(resultMsg);
-    displayArea.appendChild(replayBtn);
-    resultBox.appendChild(displayArea);
-    return resultBox;
-}

@@ -1,4 +1,4 @@
-import { renderWinLose } from "./DOMControl.js";
+import { initializeDOM } from "./DOMControl.js";
 import { Player } from './Player.js';
 
 export class GameControl {
@@ -6,21 +6,23 @@ export class GameControl {
         this.SIZE = 10;
         this.player1;
         this.player2;
-        this.multiplayer = true;
+        this.multiplayer = false;
         this.selectMove = null;
         this.turnNumber = 0;
     }
 
     // begin the gameloop
     startGame() {
-        this.dummySetPlayer();
-        const board = this.getPlayer().getDisplay();
-        if (this.multiplayer) {
-            board.createTurnCover(this.getPlayer()
-                .getName())
-                .addEventListener('click', (e) => board.clearTurnCover());
-        };
-        board.displayBoard();
+        initializeDOM();
+
+        // this.dummySetPlayer();
+        // const board = this.getPlayer().getDisplay();
+        // if (this.multiplayer) {
+        //     board.createTurnCover(this.getPlayer()
+        //         .getName())
+        //         .addEventListener('click', (e) => board.clearTurnCover());
+        // };
+        // board.displayBoard();
     }
 
     // testing values
@@ -121,16 +123,6 @@ export class GameControl {
         if (this.getPlayer().isDefeated()) { 
             this.getPlayer().getDisplay().createGameOver('YOU LOSE!'); 
         } else { this.startTurn(result); }
-    }
-
-    // populates a result popup and binds a replay button
-    gameOver(board, result) {
-        board.querySelector('.board-box').appendChild(renderWinLose(result));
-        board.querySelector('#replay-button').addEventListener('click', (e) => {
-            board.querySelector('.board-box').remove();
-            this.resetGame();
-            this.startGame();
-        });
     }
 
     // clear all variable to default
