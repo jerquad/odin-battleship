@@ -11,6 +11,7 @@ function adjustToIndex(index, size) {
     return (size + 1) * (index / size + 1) + 1;
 }
 
+// create and display the initial content
 export function initializeDOM() {
     const container = makeElement('div', { id: 'main-container' });
     const setPlayer = new SetPlayer(10, [5, 4, 3, 3, 2]);
@@ -25,12 +26,31 @@ export class SetPlayer {
         this.container = makeElement('div', { id: 'set-container' });
         this.container.appendChild(buildGrid(size, 'set-grid'));
         this.container.appendChild(this.makeTray(pieces));
+        this.dragEvent = [null, 0, 0];
+        this.dragMove = function(e) {
+            e = e || window.event;
+            e.preventDefault();
+            const drag = document.querySelector('#dragged');
+            drag.style.top = (e.clientY - this.dragEvent[2]).toString() + 'px';
+            drag.style.left = (e.clientX - this.dragEvent[1]).toString() + 'px';
+        }
+        this.dragMoveHandler = this.dragMove.bind(this);
+        this.dragEnd = function (e) {
+            e = e || window.event;
+            e.preventDefault();
+            document.querySelector('#dragged').remove();
+            document.querySelector('#main-container').removeEventListener('mousemove', this.dragMoveHandler, true);
+            document.querySelector('#main-container').removeEventListener('mouseup', this.dragEndHandler, true);
+        }
+        this.dragEndHandler = this.dragEnd.bind(this);
     }
 
     getContainer() { return this.container; }
     getGrid() { return this.getContainer().querySelector('.set-grid'); }
     getTray() { return this.getContainer().querySelector('.set-tray'); }
 
+    // append setplayer to main container, sets initial height of all icon cells
+    // binds window resizing to resize icons to match grid size
     display() { 
         document.querySelector('#main-container').appendChild(this.getContainer()); 
         this.setTrayIconSize()
@@ -41,17 +61,25 @@ export class SetPlayer {
             })
         }
     }
+
+    // clear setplayer
     remove() { document.querySelector('#set-container').remove(); }
 
+    // set the icon's cell size to match the grid's cell size
     setTrayIconSize() {
-        const height = this.getGrid().children.item(adjustToIndex(0, this.SIZE)).clientHeight;
         document.querySelectorAll('.icon-cell').forEach(cell => {
-            cell.style.height = `${height}px`;
+            cell.style.height = this.GetTrayIconSize();
         })
     }
 
+    GetTrayIconSize() {
+        return `${this.getGrid().children.item(adjustToIndex(0, this.SIZE)).clientHeight}px`;
+    }
+
+    // container for icons
     makeTray(pieces) {
         const tray = makeElement('div', { class: 'set-tray' });
+        tray.setAttribute('draggable', false);
         for (let i = 0, j = Math.floor((pieces.length) / 2); j < pieces.length; i++, j++) {
             if (i < Math.floor(pieces.length) / 2) { 
                 tray.appendChild(this.makeTrayItem(pieces[i]));
@@ -61,25 +89,48 @@ export class SetPlayer {
         return tray;
     }
 
+    // create holder for icons
     makeTrayItem(piece) {
-        const item = makeElement('div', { id: 'test', class: 'tray-item' })
+        const item = makeElement('div', { class: 'tray-item' })
+        item.setAttribute('draggable', false);
         item.appendChild(this.makePieceIcon(piece));
         return item;
     }
 
+    // create icons
     makePieceIcon(size) {
         const icon = makeElement('div', { class: 'icon-piece' });
+        icon.setAttribute('draggable', false);
         for (let i = 0; i < size; i++) {
             const cell = makeElement('div', { class: 'icon-cell' });
-
-            // cell.style.height = '50px'
-            // console.log(this.getGrid().children.item(adjustToIndex(0, this.SIZE)));
-            // cell.addEventListener('')
-            // cell.style.height = `${this.getGrid().children.item(adjustToIndex(0, this.SIZE)).clientHeight}px`;
+            cell.setAttribute('draggable', false);
             icon.appendChild(cell);
         }
+        icon.dataset.size = size;
+        icon.addEventListener('mousedown', (e) => this.dragStart(e));
         return icon;
     }
+
+    dragStart(e) {
+        const icon = (e.target.classList.contains('icon-cell')) ? e.target.parentNode : e.target;
+        const target = icon.parentElement;
+        this.dragEvent[0] = this.makePieceIcon(Number(icon.dataset.size));
+        const dragIcon = this.dragEvent[0];
+        dragIcon.classList.remove('icon-piece');
+        dragIcon.setAttribute('id', 'dragged');
+        [...dragIcon.children].forEach(child => {
+            child.style.height = this.GetTrayIconSize()
+            child.classList.add('drag-cell')
+        });
+        this.dragEvent[1] = e.clientX - dragIcon.offsetLeft;
+        this.dragEvent[2] = e.clientY - dragIcon.offsetTop;
+
+        icon.appendChild(this.dragEvent[0]);
+        document.querySelector('#main-container').addEventListener('mousemove', this.dragMoveHandler, true);
+        document.querySelector('#main-container').addEventListener('mouseup', this.dragEndHandler, true);
+    }
+
+    
 
 }
 

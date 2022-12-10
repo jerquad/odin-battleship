@@ -125,6 +125,8 @@ button:disabled {
     display: flex;
     justify-content: center;
     align-items: center;
+
+    position: relative;
 }
 
 /* Styling for set display */
@@ -151,13 +153,17 @@ button:disabled {
 }
 
 .tray-item {
-    display: flex;
+    position: relative;
+    display: grid;
     justify-content:left;
     align-items: center;
     padding: 1rem;
 }
 
 .icon-piece {
+    position: relative;
+    grid-column: 1 / -1;
+    grid-row: 1 / -1;
     border: var(--gap-sm) solid black;
     background-color: black;
     display: flex;
@@ -167,6 +173,27 @@ button:disabled {
 .icon-cell {
     background-color: var(--bg-cell);
     aspect-ratio: 1 / 1;
+}
+
+.drag-cell {
+    opacity: 0.7;
+    background-color: grey;
+    opacity: .7;
+}
+
+#dragged {
+    opacity: 0.5;
+    /* z-index: 9; */
+    /* grid-column: 1 / -1; */
+    /* grid-row: 1 / -1; */
+    position: absolute !important;
+    /* bottom: 100%; */
+    border: var(--gap-sm) solid black;
+    background-color: black;
+    display: flex;
+    gap: var(--gap-sm);
+    
+    
 }
 
 /* Styling for play displays */
