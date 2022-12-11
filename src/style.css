@@ -89,6 +89,10 @@ button:disabled {
     background-color: var(--board-selected) !important;
 }
 
+.hover {
+    background-color: yellow !important;
+}
+
 /* Styling for notifications */
 .gameover-container,
 .turn-container {

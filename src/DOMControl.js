@@ -13,9 +13,12 @@ function adjustToIndex(index, size) {
 
 // create and display the initial content
 export function initializeDOM() {
+    document.querySelector('body').setAttribute('ondragstart', 'return false;');
+    document.querySelector('body').setAttribute('ondrop', 'return false');
     const container = makeElement('div', { id: 'main-container' });
-    const setPlayer = new SetPlayer(10, [5, 4, 3, 3, 2]);
     document.body.appendChild(container);
+    const setPlayer = new SetPlayer(10, [5, 4, 3, 3, 2]);
+    
     setPlayer.display();
 }
 
@@ -26,23 +29,97 @@ export class SetPlayer {
         this.container = makeElement('div', { id: 'set-container' });
         this.container.appendChild(buildGrid(size, 'set-grid'));
         this.container.appendChild(this.makeTray(pieces));
-        this.dragEvent = [null, 0, 0];
+        // handle conflicts with mouse leaving window while in drag
+        document.querySelector('#main-container').addEventListener('mouseleave', () => {
+            return this.dragEndHandler();
+        });
+        // container for drag information
+        this.dragEvent = {
+            dragItem: null,
+            xOff: 0,
+            yOff: 0,
+            dragOver: null,
+            dragGroup: []
+        };
+        // bound function to handle dragging motion
         this.dragMove = function(e) {
             e = e || window.event;
             e.preventDefault();
-            const drag = document.querySelector('#dragged');
-            drag.style.top = (e.clientY - this.dragEvent[2]).toString() + 'px';
-            drag.style.left = (e.clientX - this.dragEvent[1]).toString() + 'px';
+            const icon = this.dragEvent.dragItem;
+            icon.style.top = (e.clientY - this.dragEvent.yOff) + 'px';
+            icon.style.left = (e.clientX - this.dragEvent.xOff) + 'px';
+
+            icon.style.visibility = 'hidden';
+            let below = document.elementFromPoint(e.clientX, e.clientY);
+            icon.style.visibility = 'visible';
+
+            if (below.classList.contains('selectable') 
+                && this.dragEvent.dragOver != below) {
+                    this.clearHover();
+                    this.setHover(below, Number(icon.dataset.left), Number(icon.dataset.right));
+            } else if (!below.classList.contains('selectable')) {
+                this.clearHover();
+            }
         }
         this.dragMoveHandler = this.dragMove.bind(this);
+        // bound function to clear dragged actions
         this.dragEnd = function (e) {
             e = e || window.event;
             e.preventDefault();
-            document.querySelector('#dragged').remove();
+            if (this.dragEvent.dragItem) { this.dragEvent.dragItem.remove() };
+            this.clearHover();
             document.querySelector('#main-container').removeEventListener('mousemove', this.dragMoveHandler, true);
             document.querySelector('#main-container').removeEventListener('mouseup', this.dragEndHandler, true);
         }
         this.dragEndHandler = this.dragEnd.bind(this);
+    }
+
+    // Handle adding hover event
+    setHover(cell, left, right) {  
+        cell.classList.add('hover');
+        this.dragEvent.dragOver = cell;
+        this.dragEvent.dragGroup.push(cell);
+        this.hoverSiblings(cell, left, true);
+        this.hoverSiblings(cell, right, false);                        
+    }
+
+    // Helper function to highlight the correct neighboring siblings on hover
+    hoverSiblings(root, numSib, left) {
+        let toAdd = root;
+        let index = Number(root.dataset.index);
+        const row = Math.floor(index / this.SIZE);
+        for (let i = 0; i < numSib; i++) {
+            const check = (left) ? ((index - (i + 1)) / this.SIZE) : ((index + (i + 1)) / this.SIZE);
+            if (row === Math.floor(check)) {
+                toAdd = (left) ? toAdd.previousSibling : toAdd.nextSibling;
+                toAdd.classList.add('hover'); 
+                this.dragEvent.dragGroup.push(toAdd);
+            }
+        }
+    }
+
+    clearHover() {
+        this.dragEvent.dragOver = null;
+        this.dragEvent.dragGroup.forEach(cell => cell.classList.remove('hover'));
+            this.dragEvent.dragGroup.length = 0;
+    }
+
+    // creates and appends dragged icon, sets drag bindings
+    dragStart(e) {
+        const icon = (e.target.classList.contains('icon-cell')) ? e.target.parentNode : e.target;
+        this.dragEvent.dragItem = this.makeDragIcon(Number(icon.dataset.size));
+        this.dragEvent.xOff = e.clientX;
+        this.dragEvent.yOff = e.clientY;
+        icon.appendChild(this.dragEvent.dragItem);
+
+        const xPos = e.clientX - this.dragEvent.dragItem.getBoundingClientRect().left;
+        const left = Math.floor(xPos / this.dragEvent.dragItem.firstChild.clientWidth);
+        const right = this.dragEvent.dragItem.childElementCount - left - 1;
+        this.dragEvent.dragItem.setAttribute('data-left', left);
+        this.dragEvent.dragItem.setAttribute('data-right', right);
+
+        document.querySelector('#main-container').addEventListener('mousemove', this.dragMoveHandler, true);
+        document.querySelector('#main-container').addEventListener('mouseup', this.dragEndHandler, true);
     }
 
     getContainer() { return this.container; }
@@ -111,27 +188,16 @@ export class SetPlayer {
         return icon;
     }
 
-    dragStart(e) {
-        const icon = (e.target.classList.contains('icon-cell')) ? e.target.parentNode : e.target;
-        const target = icon.parentElement;
-        this.dragEvent[0] = this.makePieceIcon(Number(icon.dataset.size));
-        const dragIcon = this.dragEvent[0];
-        dragIcon.classList.remove('icon-piece');
+    makeDragIcon(size) {
+        const dragIcon = this.makePieceIcon(Number(size));
         dragIcon.setAttribute('id', 'dragged');
         [...dragIcon.children].forEach(child => {
             child.style.height = this.GetTrayIconSize()
             child.classList.add('drag-cell')
         });
-        this.dragEvent[1] = e.clientX - dragIcon.offsetLeft;
-        this.dragEvent[2] = e.clientY - dragIcon.offsetTop;
-
-        icon.appendChild(this.dragEvent[0]);
-        document.querySelector('#main-container').addEventListener('mousemove', this.dragMoveHandler, true);
-        document.querySelector('#main-container').addEventListener('mouseup', this.dragEndHandler, true);
+        return dragIcon;
+        
     }
-
-    
-
 }
 
 // Display for the general play area
@@ -227,7 +293,7 @@ function buildGrid(sideSize, addClass) {
         if (i === 0) { gridBox.appendChild(makeElement('div', { class: 'guide-corner' })) }
         else if (i <= sideSize) { gridBox.appendChild(makeElement('div', { class: 'guide-top' }, String.fromCharCode(colValue++))) }
         else if (i % (sideSize + 1) === 0) { gridBox.appendChild(makeElement('div', { class: 'guide-left'}, rowValue++)) }
-        else { gridBox.appendChild(makeElement('div', { class: 'open-cell', 'data-index': cellIndex++ })) };
+        else { gridBox.appendChild(makeElement('div', { class: 'open-cell selectable', 'data-index': cellIndex++ })) };
     }
 
     // Find a better home for this
