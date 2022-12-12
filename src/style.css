@@ -44,6 +44,8 @@ button:disabled {
 
 /* styling for all grid displays */
 .grid-box {
+    font-size: var(--font-guide-lg);
+    aspect-ratio: 1 / 1;
     background-color: var(--bg-grid);
     display: grid;
     grid-template-columns: repeat(var(--side-size), 1fr);
@@ -142,12 +144,12 @@ button:disabled {
     
 }
 
-.set-grid {
+/* .set-grid {
     font-size: var(--font-guide-lg);
     aspect-ratio: 1 / 1;
     gap: var(--gap-lg);
     min-height: 0;
-}
+} */
 
 .set-tray {
     background-color: lightgrey;
@@ -180,24 +182,57 @@ button:disabled {
 }
 
 .drag-cell {
-    opacity: 0.7;
+    opacity: 0.5;
     background-color: grey;
-    opacity: .7;
 }
 
 #dragged {
     opacity: 0.5;
-    /* z-index: 9; */
-    /* grid-column: 1 / -1; */
-    /* grid-row: 1 / -1; */
     position: absolute !important;
-    /* bottom: 100%; */
-    border: var(--gap-sm) solid black;
-    background-color: black;
+}
+
+.drag-y {
+    flex-direction: column;
+}
+
+.toggle-rotate {
+    transform: rotate(90deg);
+}
+
+#toggle-bar {
     display: flex;
-    gap: var(--gap-sm);
-    
-    
+}
+
+#toggle-container {
+    position: relative;
+    margin: 10px;
+}
+
+#toggle-text {
+    user-select: none;
+    position: absolute;
+    left: 50%;
+    top:  50%;
+    transform: translate(-50%, -50%);
+}
+
+#toggle-body {
+    height: 80px;
+    width: 80px;
+    background-color: red;
+    border-radius: 40px;
+}
+
+#toggle-body:after {
+    position: absolute;
+    /* margin-top: 10px; */
+    height: 0;
+    width: 0;
+    top: 20px;
+    left: 70px;
+    content: '';
+    border: 20px solid transparent;
+    border-left-color: red;
 }
 
 /* Styling for play displays */
