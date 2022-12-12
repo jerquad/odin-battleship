@@ -101,14 +101,17 @@ export class SetPlayer {
         return `${this.getGrid().children.item(adjustToIndex(0, this.SIZE)).clientHeight}px`;
     }
 
-    // container for icons
+    // container for icons indexes the icons on order added
     makeTray(pieces) {
         const tray = makeElement('div', { class: 'set-tray' });
+        let index = 0;
         for (let i = 0, j = Math.floor((pieces.length) / 2); j < pieces.length; i++, j++) {
-            if (i < Math.floor(pieces.length) / 2) { 
+            if (i < Math.floor(pieces.length / 2)) { 
                 tray.appendChild(this.makeTrayItem(pieces[i]));
+                tray.lastChild.firstChild.setAttribute('data-tray', `${index++}`);
             }
             tray.appendChild(this.makeTrayItem(pieces[j]));
+            tray.lastChild.firstChild.setAttribute('data-tray', `${index++}`);
         }
         return tray;
     }
@@ -132,9 +135,10 @@ export class SetPlayer {
         return icon;
     }
 
-    makeDragIcon(size, vertical) {
+    makeDragIcon(size, vertical, tray) {
         const dragIcon = this.makePieceIcon(Number(size));
         dragIcon.setAttribute('id', 'dragged');
+        dragIcon.setAttribute('data-tray', tray);
         if (vertical) { dragIcon.classList.add('drag-y') }
         [...dragIcon.children].forEach(child => {
             child.style.height = this.GetTrayIconSize()
@@ -149,7 +153,10 @@ export class SetPlayer {
     dragStart(e) {
         const icon = (e.target.classList.contains('icon-cell')) ? e.target.parentNode : e.target;
         const isY = (document.querySelector('#toggle-body').dataset.y === 'true');
-        this.dragEvent.dragItem = this.makeDragIcon(Number(icon.dataset.size), isY);
+        if (icon.classList.contains('icon-disable')) { return }
+        icon.classList.add('icon-disable');
+
+        this.dragEvent.dragItem = this.makeDragIcon(Number(icon.dataset.size), isY, icon.dataset.tray);
         this.dragEvent.xOff = e.clientX;
         this.dragEvent.yOff = e.clientY;
         icon.appendChild(this.dragEvent.dragItem);
@@ -199,6 +206,25 @@ export class SetPlayer {
     dragEnd(e) {
         e = e || window.event;
         e.preventDefault();
+
+        let validSet = true;
+        if (this.dragEvent.dragItem.childElementCount === this.dragEvent.dragGroup.length) {
+            this.dragEvent.dragGroup.forEach(cell => {
+                if (cell.classList.contains('set')) { validSet = false;}
+            })
+        } else { validSet = false; }
+
+        if (validSet) {
+            this.dragEvent.dragGroup.forEach(cell => {
+                cell.classList.add('set');
+            })
+        } else {
+            document.querySelector('.set-tray')
+            .children.item(Number(this.dragEvent.dragItem.dataset.tray))
+            .firstChild.classList
+            .remove('icon-disable');
+        }
+
         if (this.dragEvent.dragItem) { this.dragEvent.dragItem.remove() };
         this.clearHover();
         document.querySelector('#main-container').removeEventListener('mousemove', this.dragMoveHandler, true);

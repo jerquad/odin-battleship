@@ -95,6 +95,14 @@ button:disabled {
     background-color: yellow !important;
 }
 
+.set {
+    background-color: green !important;
+}
+
+.set.hover {
+    background-color: darkgrey !important;
+}
+
 /* Styling for notifications */
 .gameover-container,
 .turn-container {
@@ -139,7 +147,7 @@ button:disabled {
 #set-container {
     display: flex;
     flex-direction: column;
-    flex: 0 1 70vh;
+    flex: 0 1 55vh;
     gap: 1rem;
     
 }
@@ -174,6 +182,10 @@ button:disabled {
     background-color: black;
     display: flex;
     gap: var(--gap-sm);
+}
+
+.icon-piece.icon-disable>div:not(#dragged) {
+    background-color: grey !important;
 }
 
 .icon-cell {
@@ -225,7 +237,6 @@ button:disabled {
 
 #toggle-body:after {
     position: absolute;
-    /* margin-top: 10px; */
     height: 0;
     width: 0;
     top: 20px;
