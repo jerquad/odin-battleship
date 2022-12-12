@@ -1,3 +1,5 @@
+import { DragElement } from './DragElement.js';
+
 // Helper function for easy element creation
 // use: (<string>, <object> of properties as you would use setAttribute, <string>innerHTML)
 function makeElement(type, properties = {}, inner = null) {
@@ -152,54 +154,107 @@ export class SetPlayer {
     // creates and appends dragged icon, sets drag bindings
     dragStart(e) {
         const icon = (e.target.classList.contains('icon-cell')) ? e.target.parentNode : e.target;
-        const isY = (document.querySelector('#toggle-body').dataset.y === 'true');
         if (icon.classList.contains('icon-disable')) { return }
+        const dragIcon = this.makeDragIcon(
+            Number(icon.dataset.size),
+            (document.querySelector('#toggle-body').dataset.y === 'true'),
+            icon.dataset.tray);
+        this.dragEvent.dragItem = dragIcon;
         icon.classList.add('icon-disable');
-
-        this.dragEvent.dragItem = this.makeDragIcon(Number(icon.dataset.size), isY, icon.dataset.tray);
-        this.dragEvent.xOff = e.clientX;
-        this.dragEvent.yOff = e.clientY;
         icon.appendChild(this.dragEvent.dragItem);
-
-        const xPos = e.clientX - this.dragEvent.dragItem.getBoundingClientRect().left;
-        const left = Math.floor(xPos / this.dragEvent.dragItem.firstChild.clientWidth);
-        const right = this.dragEvent.dragItem.childElementCount - left - 1;
-        this.dragEvent.dragItem.setAttribute('data-left', left);
-        this.dragEvent.dragItem.setAttribute('data-right', right);
-
-        if (this.dragEvent.dragItem.classList.contains('drag-y')) {
-            const newX = xPos - (this.dragEvent.dragItem.clientWidth / 2)
-            this.dragEvent.dragItem.style.left = `${newX}px`;
-            this.dragEvent.xOff -= newX;
-        }
-
+        const offset = this.setXYAttribute(
+            dragIcon,
+            e.clientX - dragIcon.getBoundingClientRect().left)
+        DragElement(dragIcon, e.clientX - offset, e.clientY);
         document.querySelector('#main-container').addEventListener('mousemove', this.dragMoveHandler, true);
         document.querySelector('#main-container').addEventListener('mouseup', this.dragEndHandler, true);
     }
 
-    // bound function to handle dragging motion
+    // if y-aligned places the icon to mouse and returns an offset
+    // if x-aligned sets sibling data and returns a 0 offset
+    setXYAttribute(element, xPos) {
+        if (element.classList.contains('drag-y')) {
+            const offset = xPos - (element.clientWidth / 2)
+            element.style.left = `${offset}px`;
+            return offset;
+        } else {
+            const left = Math.floor(xPos / element.firstChild.clientWidth);
+            element.setAttribute('data-left', left);
+            element.setAttribute('data-right', element.childElementCount - left - 1);
+            return 0
+        }
+    }
+
+    // on drag investigate if element below cursor is a valid hover target
+    // and adjust displayed hover targets
     dragMove(e) {
         e = e || window.event;
         e.preventDefault();
-        const icon = this.dragEvent.dragItem;
-        icon.style.top = (e.clientY - this.dragEvent.yOff) + 'px';
-        icon.style.left = (e.clientX - this.dragEvent.xOff) + 'px';
-
+        const icon = document.querySelector('#dragged');
         icon.style.visibility = 'hidden';
         let below = document.elementFromPoint(e.clientX, e.clientY);
         icon.style.visibility = 'visible';
-
         if (below.classList.contains('selectable') 
             && this.dragEvent.dragOver != below) {
                 this.clearHover();
-                if (this.dragEvent.dragItem.classList.contains('drag-y')) {
-                    this.setHoverY(below, this.dragEvent.dragItem.childElementCount);
+                if (icon.classList.contains('drag-y')) {
+                    this.setHoverY(
+                        below,
+                        icon.childElementCount);
                 } else {
-                    this.setHover(below, Number(icon.dataset.left), Number(icon.dataset.right));
+                    this.setHoverX(
+                        below, 
+                        Number(icon.dataset.left),
+                        Number(icon.dataset.right));
                 }
         } else if (!below.classList.contains('selectable')) {
             this.clearHover();
         }
+    }
+
+    // Handle adding hover event
+    setHoverX(cell, left, right) {  
+        cell.classList.add('hover');
+        this.dragEvent.dragOver = cell;        
+        this.dragEvent.dragGroup.push(cell);
+        this.hoverSiblings(cell, left, true);
+        this.hoverSiblings(cell, right, false);                        
+    }
+
+    setHoverY(root, numSib) {
+        const grid = document.querySelector('.grid-box');
+        let index = Number(root.dataset.index);
+        let toAdd = root;
+        for (let i = 0; i < numSib; i++) {
+            if (toAdd) {
+                index = Number(toAdd.dataset.index);
+                this.dragEvent.dragGroup.push(toAdd);
+                toAdd.classList.add('hover');
+                toAdd = grid.children.item(adjustToIndex(index + this.SIZE, this.SIZE));
+            }
+        }
+    }
+    
+    // Helper function to highlight the correct neighboring siblings on hover
+    hoverSiblings(root, numSib, left) {
+        let toAdd = root;
+        let index = Number(root.dataset.index);
+        const row = Math.floor(index / this.SIZE);
+        for (let i = 0; i < numSib; i++) {
+            const check = (left) ? ((index - (i + 1)) / this.SIZE) : ((index + (i + 1)) / this.SIZE);
+            if (row === Math.floor(check)) {
+                toAdd = (left) ? toAdd.previousSibling : toAdd.nextSibling;
+                toAdd.classList.add('hover'); 
+                this.dragEvent.dragGroup.push(toAdd);
+            }
+        }
+    }
+
+    // resets set hover actions
+    clearHover() {
+        this.dragEvent.dragOver = null;
+        this.dragEvent.dragGroup.forEach(cell => cell.classList.remove('hover'));
+        this.dragEvent.dragGroup.length = 0;
     }
 
     // Function to clear dragged actions
@@ -229,52 +284,6 @@ export class SetPlayer {
         this.clearHover();
         document.querySelector('#main-container').removeEventListener('mousemove', this.dragMoveHandler, true);
         document.querySelector('#main-container').removeEventListener('mouseup', this.dragEndHandler, true);
-    }
-
-    // Handle adding hover event
-    setHover(cell, left, right) {  
-        cell.classList.add('hover');
-        this.dragEvent.dragOver = cell;        
-        this.dragEvent.dragGroup.push(cell);
-        this.hoverSiblings(cell, left, true);
-        this.hoverSiblings(cell, right, false);                        
-    }
-
-    setHoverY(root, numSib) {
-        const grid = document.querySelector('.grid-box');
-        let index = Number(root.dataset.index);
-        let toAdd = root;
-        for (let i = 0; i < numSib; i++) {
-            if (toAdd) {
-                index = Number(toAdd.dataset.index);
-                this.dragEvent.dragGroup.push(toAdd);
-                toAdd.classList.add('hover');
-                toAdd = grid.children.item(adjustToIndex(index + this.SIZE, this.SIZE));
-            }
-        }
-
-    }
-
-    // Helper function to highlight the correct neighboring siblings on hover
-    hoverSiblings(root, numSib, left) {
-        let toAdd = root;
-        let index = Number(root.dataset.index);
-        const row = Math.floor(index / this.SIZE);
-        for (let i = 0; i < numSib; i++) {
-            const check = (left) ? ((index - (i + 1)) / this.SIZE) : ((index + (i + 1)) / this.SIZE);
-            if (row === Math.floor(check)) {
-                toAdd = (left) ? toAdd.previousSibling : toAdd.nextSibling;
-                toAdd.classList.add('hover'); 
-                this.dragEvent.dragGroup.push(toAdd);
-            }
-        }
-    }
-
-    // resets set hover actions
-    clearHover() {
-        this.dragEvent.dragOver = null;
-        this.dragEvent.dragGroup.forEach(cell => cell.classList.remove('hover'));
-        this.dragEvent.dragGroup.length = 0;
     }
 }
 
