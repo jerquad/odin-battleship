@@ -32,7 +32,7 @@ export class PlayBoard {
     // Helpers to handle the displayed guides
     getGuideIndex(index) { return String.fromCharCode(65 + (index % this.SIZE)).concat(Math.floor(index / this.SIZE) + 1); }
 
-    displayBoard() { document.body.appendChild(this.getContainer()); }
+    displayBoard() { document.querySelector('#main-container').appendChild(this.getContainer()); }
     removeBoard() { document.querySelector('.play-container').remove(); }
 
     // set the display's button text and disabled status
