@@ -40,6 +40,18 @@ export function buildSetPlayer(size, pieces) {
     container.appendChild(buildGrid(size));
     container.appendChild(buildToggleBar());
     container.appendChild(makeTray(pieces));
+    container.appendChild(buildSubmitBar());
+    return container;
+}
+
+function buildSubmitBar() {
+    const container = makeElement('div', { id: 'submit-bar' });
+    const buttonContainer = makeElement('div', { id: 'submit-bc' });
+    const multiContainer = makeElement('div', { id: 'submit-mc' });
+    buttonContainer.appendChild(makeElement('button', { id: 'submit-btn', disabled: 'true' }, 'CONTINUE'));
+    multiContainer.appendChild(makeElement('input', { type: 'checkbox', id: 'submit-chk' }))
+    container.appendChild(buttonContainer);
+    container.appendChild(multiContainer);
     return container;
 }
 

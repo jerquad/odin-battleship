@@ -34,6 +34,7 @@ button {
     color: var(--button-fg-normal);
     border: 5px solid var(--button-fg-normal);
     font-size: var(--button-font-size);
+    width: 100%;
 }
 
 button:disabled {
@@ -246,6 +247,18 @@ button:disabled {
     content: '';
     border: 20px solid transparent;
     border-left-color: red;
+}
+
+#submit-bar {
+    display: flex;
+}
+
+#submit-bc {
+    width: 100%;
+}
+
+#submit-mc {
+    width: min-content;
 }
 
 /* Styling for play displays */

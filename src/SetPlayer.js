@@ -26,6 +26,22 @@ export class SetPlayer {
     getContainer() { return this.container; }
     getGrid() { return this.getContainer().querySelector('.grid-box'); }
     getTray() { return this.getContainer().querySelector('.set-tray'); }
+    getButton() { return this.getContainer().querySelector('#submit-btn'); }
+    getMulti() { return this.getContainer().querySelector('#submit-chk').checked }
+    getData() {
+        const data = {
+            multi: this.getMulti(),
+            board: []
+        }
+        this.setItem.forEach(item => {
+            const add = [];
+            add.push(item.size);
+            add.push(item.head);
+            add.push(item.setY);
+            data.board.push(add);
+        });
+        return data;
+    }
 
     // append setplayer to main container, sets initial height of all icon cells
     // binds window resizing to resize icons to match grid size
@@ -97,6 +113,8 @@ export class SetPlayer {
         document.querySelector('#main-container').addEventListener('mouseleave', this.dragEndHandler);
         document.querySelector('#main-container').addEventListener('mousemove', this.dragMoveHandler, true);
         document.querySelector('#main-container').addEventListener('mouseup', this.dragEndHandler, true);
+
+        this.getButton().disabled = true;
     }
 
     // Configure position and data attributes when picking up from the board
@@ -190,6 +208,13 @@ export class SetPlayer {
             .firstChild.classList
             .remove('icon-disable');
         }
+
+        if (this.getTray().childElementCount === this.setItem.length) {
+            this.getButton().disabled = false;
+        } else {
+            this.getButton().disabled = true;
+        }
+
         document.querySelector('#dragged').remove();
         this.clearHover();
         document.querySelector('#main-container').removeEventListener('mouseleave', this.dragEndHandler);

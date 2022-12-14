@@ -6,9 +6,8 @@ export function initializeDOM() {
     document.querySelector('body').setAttribute('ondrop', 'return false');
     const container = makeElement('div', { id: 'main-container' });
     document.body.appendChild(container);
-    const setPlayer = new SetPlayer(10, [5, 4, 3, 3, 2]);
-    
-    setPlayer.display();
+    // const setPlayer = new SetPlayer(10, [5, 4, 3, 3, 2]);
+    // setPlayer.display();
 }
 
 // Display for the general play area

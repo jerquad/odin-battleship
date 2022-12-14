@@ -1,11 +1,12 @@
 import { initializeDOM } from "./DOMControl.js";
+import { SetPlayer } from "./SetPlayer.js";
 import { Player } from './Player.js';
 
 export class GameControl {
     constructor() {
         this.SIZE = 10;
-        this.player1;
-        this.player2;
+        this.player1 = null;
+        this.player2 = null;
         this.multiplayer = false;
         this.selectMove = null;
         this.turnNumber = 0;
@@ -14,6 +15,9 @@ export class GameControl {
     // begin the gameloop
     startGame() {
         initializeDOM();
+        this.createPlayer();
+        
+        // initializeDOM();
 
         // this.dummySetPlayer();
         // const board = this.getPlayer().getDisplay();
@@ -23,6 +27,33 @@ export class GameControl {
         //         .addEventListener('click', (e) => board.clearTurnCover());
         // };
         // board.displayBoard();
+    }
+
+    createPlayer() {
+        const setPlayer = new SetPlayer(10, [5, 4, 3, 3, 2]);
+        setPlayer.getButton().addEventListener('click', (e) => {
+            const data = setPlayer.getData();
+            setPlayer.remove();
+            if (this.player1) { 
+                this.player2 = new Player('player2', data.board);
+                const board = this.getPlayer().getDisplay();
+                board.createTurnCover(this.getPlayer()
+                .getName())
+                .addEventListener('click', (e) => board.clearTurnCover());
+                board.displayBoard();
+            } else if (data.multi) {
+                this.player1 = new Player('player1', data.board);
+                this.bindBoard(this.player1);
+                this.multiplayer = true;
+                this.createPlayer();
+            } else {
+                this.player1 = new Player('player1', data.board);
+                this.bindBoard(this.player1);
+                this.dummySetPlayer();
+                this.getPlayer().getDisplay().displayBoard();
+            }
+        });
+        setPlayer.display();
     }
 
     // testing values
@@ -41,8 +72,8 @@ export class GameControl {
             [3, 68, true],
             [2, 12, true]
         ]
-        this.player1 = new Player('player1', dummy1);
-        this.bindBoard(this.player1);
+        // this.player1 = new Player('player1', dummy1);
+        // this.bindBoard(this.player1);
         this.player2 = new Player('player2', dummy2);
         this.bindBoard(this.player2)
     }
