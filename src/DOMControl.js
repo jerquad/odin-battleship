@@ -5,6 +5,10 @@ export function initializeDOM() {
     document.querySelector('body').setAttribute('ondragstart', 'return false;');
     document.querySelector('body').setAttribute('ondrop', 'return false');
     const container = makeElement('div', { id: 'main-container' });
+
+    container.appendChild(makeElement('div', { id: 'header' }));
+    container.appendChild(makeElement('div', { id: 'footer' }));
+
     document.body.appendChild(container);
     // const setPlayer = new SetPlayer(10, [5, 4, 3, 3, 2]);
     // setPlayer.display();

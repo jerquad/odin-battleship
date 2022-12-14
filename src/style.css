@@ -18,11 +18,12 @@
     --side-size: 10;
 }
 
-
-body, html {
+html,
+body {
     margin: 0;
     height: 100%;
-    width: 100%;
+    /* min-height: 100vh; */
+    width: 100vw;
 }
 
 button {
@@ -39,6 +40,40 @@ button:disabled {
     border-color: var(--button-fg-disable);
 }
 
+#main-container {
+    /* min-height: 100vh; */
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box;
+    /* display: flex;
+    flex-direction: column; */
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-content: center;
+    align-items: center;
+
+    position: relative;
+
+    margin: 0;
+}
+
+#header,
+#footer {
+    min-height: 10px;
+    height: 100%;
+    width: 100%;
+}
+
+#header {
+    grid-row: 1 / 2;
+    background-color: bisque;
+}
+
+#footer {
+    grid-row: 3/ 4;
+    background-color: aqua;
+}
+
 /* styling for all grid displays */
 .grid-box {
     font-size: var(--font-guide-lg);
@@ -50,12 +85,18 @@ button:disabled {
 }
 
 .grid-box > div {
+    padding: 0;
     position: relative;
     user-select: none;
     background-color: var(--bg-cell);
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+#set-container > .grid-box > div{
+    width: 2rem;
+    height: 2rem;
 }
 
 .guide-top,
@@ -129,33 +170,17 @@ button:disabled {
     padding: 2rem;
 }
 
-#main-container {
-    height: 100%;
-    width: 100vw;
-    min-height: 100%;
-    box-sizing: border-box;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    position: relative;
-}
-
 /* Styling for set display */
 #set-container {
+    /* height: 100%; */
+    justify-self: center;
+    grid-row: 2 / 3;
+    width: min-content;
     display: flex;
     flex-direction: column;
-    flex: 0 1 55vh;
-    gap: 1rem;
-    
+    flex: 0 1 100%;
+    gap: 1rem;   
 }
-
-/* .set-grid {
-    font-size: var(--font-guide-lg);
-    aspect-ratio: 1 / 1;
-    gap: var(--gap-lg);
-    min-height: 0;
-} */
 
 .set-tray {
     background-color: lightgrey;
@@ -211,6 +236,7 @@ button:disabled {
 }
 
 #toggle-bar {
+    width: min-content;
     display: flex;
 }
 
@@ -259,6 +285,7 @@ button:disabled {
 
 /* Styling for play displays */
 .play-container {
+    grid-row: 2 / 3;
     margin: 0 .5rem;
     width: 100%;
     height: min-content;
@@ -303,6 +330,7 @@ button:disabled {
 /* Styling for wide views of play display  */
 @media (min-width: 570px) {
     .play-container {
+        justify-self: center;
         max-width: 1000px;
         display: grid;
         grid-template-columns: 2fr 1fr;
