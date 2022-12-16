@@ -7,7 +7,9 @@ export function initializeDOM() {
     const container = makeElement('div', { id: 'main-container' });
 
     container.appendChild(makeElement('div', { id: 'header' }));
+    container.querySelector('#header').appendChild(makeElement('h1', {}, 'BATTLESHIP'));
     container.appendChild(makeElement('div', { id: 'footer' }));
+    container.querySelector('#footer').appendChild(makeElement('p', {}, '&copy; 2022 Jimmy Quadros'));
 
     document.body.appendChild(container);
     // const setPlayer = new SetPlayer(10, [5, 4, 3, 3, 2]);

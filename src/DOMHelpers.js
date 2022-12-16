@@ -47,11 +47,21 @@ export function buildSetPlayer(size, pieces) {
 function buildSubmitBar() {
     const container = makeElement('div', { id: 'submit-bar' });
     const buttonContainer = makeElement('div', { id: 'submit-bc' });
-    const multiContainer = makeElement('div', { id: 'submit-mc' });
     buttonContainer.appendChild(makeElement('button', { id: 'submit-btn', disabled: 'true' }, 'CONTINUE'));
-    multiContainer.appendChild(makeElement('input', { type: 'checkbox', id: 'submit-chk' }))
     container.appendChild(buttonContainer);
-    container.appendChild(multiContainer);
+    container.appendChild(buildSetMulti());
+    return container;
+}
+
+function buildSetMulti() {
+    const container = makeElement('div', { id: 'submit-mc' });
+    const two = makeElement('div', { id: 'submit-mc-2' });
+    two.appendChild(makeElement('div', {}, 'T'));
+    two.appendChild(makeElement('div', {}, 'W'));
+    two.appendChild(makeElement('div', {}, 'O'));
+    container.appendChild(two);
+    container.appendChild(makeElement('div', { id: 'submit-mc-m' }, 'PLAY'));
+    container.appendChild(makeElement('input', { type: 'checkbox', id: 'submit-chk' }))
     return container;
 }
 
@@ -60,6 +70,11 @@ function buildToggleBar() {
     const toggleContainer = makeElement('div', { id: 'toggle-container' })
     const toggleBody = makeElement('div', { id: 'toggle-body', 'data-y': 'false' });
     const toggleText = makeElement('div', { id: 'toggle-text' }, 'X');
+    const instructCont = makeElement('div', {id: 'inst-container' });
+    const instructUL = makeElement('ul', {id: 'inst-ul' });
+    instructUL.appendChild(makeElement('li', {}, 'DRAG PIECES BELOW TO GRID'));
+    instructUL.appendChild(makeElement('li', {}, 'LEFT TOGGLE TO SET DIRECTION'));
+    instructUL.appendChild(makeElement('li', {}, 'ONCE ALL SET PRESS CONTINUE'));
     toggleBody.addEventListener('click', (e) => {
         if (e.target.classList.contains('toggle-rotate')) {
             e.target.setAttribute('data-y', 'false');
@@ -74,6 +89,8 @@ function buildToggleBar() {
     toggleContainer.appendChild(toggleBody);
     toggleContainer.appendChild(toggleText);
     togglebar.appendChild(toggleContainer)
+    instructCont.appendChild(instructUL);
+    togglebar.appendChild(instructCont);
     return togglebar;
 }
 
