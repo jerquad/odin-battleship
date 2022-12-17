@@ -1,12 +1,12 @@
-import { initializeDOM } from "./DOMControl.js";
+import { initializeDOM, PlayBoard } from "./DOMControl.js";
 import { SetPlayer } from "./SetPlayer.js";
 import { Player } from './Player.js';
 
 export class GameControl {
     constructor() {
         this.SIZE = 10;
-        this.player1 = null;
-        this.player2 = null;
+        this.player1 = { player: null, board: null };
+        this.player2 = { player: null, board: null };
         this.multiplayer = false;
         this.selectMove = null;
         this.turnNumber = 0;
@@ -24,26 +24,28 @@ export class GameControl {
             const data = setPlayer.getData();
             setPlayer.remove();
             // set second player
-            if (this.player1) { 
-                this.player2 = new Player('player2', data.board);
+            if (this.player1.player) { 
+                this.player2.player = new Player('player2', data.board);
+                this.player2.board = new PlayBoard(this.SIZE, this.player2.player.getAllShipIndex());
                 this.bindBoard(this.player2);
-                const board = this.getPlayer().getDisplay();
-                board.createTurnCover(this.getPlayer()
-                .getName())
-                .addEventListener('click', (e) => board.clearTurnCover());
-                board.displayBoard();
+                this.getPlayerBoard()
+                    .createTurnCover(this.getPlayer().getName())
+                    .addEventListener('click', (e) => this.getPlayerBoard().clearTurnCover());
+                this.getPlayerBoard().displayBoard();
             // set first player and prompt for second
             } else if (data.multi) {
-                this.player1 = new Player('player1', data.board);
+                this.player1.player = new Player('player1', data.board);
+                this.player1.board = new PlayBoard(this.SIZE, this.player1.player.getAllShipIndex());
                 this.bindBoard(this.player1);
                 this.multiplayer = true;
                 this.createPlayer(true);
             // set single player and set cpu player
             } else {
-                this.player1 = new Player('player1', data.board);
+                this.player1.player = new Player('player1', data.board);
+                this.player1.board = new PlayBoard(this.SIZE, this.player1.player.getAllShipIndex());
                 this.bindBoard(this.player1);
                 this.dummySetPlayer();
-                this.getPlayer().getDisplay().displayBoard();
+                this.getPlayerBoard().displayBoard();
             }
         });
         setPlayer.display();
@@ -67,24 +69,33 @@ export class GameControl {
         ]
         // this.player1 = new Player('player1', dummy1);
         // this.bindBoard(this.player1);
-        this.player2 = new Player('player2', dummy2);
+        this.player2.player = new Player('player2', dummy2);
+        this.player2.board = new PlayBoard(this.SIZE, this.player2.player.getAllShipIndex());
         this.bindBoard(this.player2)
     }
 
     // Determine the active player
     getPlayer() {
-        return (this.turnNumber % 2 === 0) ? this.player1 : this.player2; 
+        return (this.turnNumber % 2 === 0) ? this.player1.player : this.player2.player; 
+    }
+
+    getPlayerBoard() {
+        return (this.turnNumber % 2 === 0) ? this.player1.board : this.player2.board; 
     }
 
     // Determine the current non player
     getAdversary() {
-        return (this.turnNumber % 2 === 0) ? this.player2 : this.player1;
+        return (this.turnNumber % 2 === 0) ? this.player2.player : this.player1.player;
+    }
+
+    getAdversaryBoard() {
+        return (this.turnNumber % 2 === 0) ? this.player2.board : this.player1.board;
     }
 
     // bindings for play area
     bindBoard(player) {
-        const display = player.getDisplay();
-        const button = player.getDisplay().getButton();
+        const display = player.board;
+        const button = display.getButton();
         
         // bind clickable cells
         display.getPlay().addEventListener('click', (e) => {
@@ -105,13 +116,13 @@ export class GameControl {
     // Function for action button, takes a player selected turn
     takeTurn() {
         const result = this.getAdversary().takeHit(this.selectMove);
-        this.getPlayer().getDisplay().updatePlay(this.selectMove, result);
+        this.getPlayerBoard().updatePlay(this.selectMove, result);
         if (this.getAdversary().isDefeated()) { 
             this.getPlayer()
-                .getDisplay()
+                .board
                 .createGameOver('YOU WIN!')
                 .addEventListener('click', (e) => {
-                    this.getPlayer().getDisplay().removeBoard();
+                    this.getPlayerBoard().removeBoard();
                     this.resetGame();
                     this.startGame();
             }); 
@@ -122,21 +133,21 @@ export class GameControl {
 
     // Renders move taken on player and reset selectMove
     startTurn(result) {
-        this.getPlayer().getDisplay().updateStatus(this.selectMove, result);
+        this.getPlayerBoard().updateStatus(this.selectMove, result);
         this.selectMove = null;
     }
 
     // Prepares the play area to exchange players
     switchTurn(result) {
-        const board = this.getAdversary().getDisplay();
+        const board = this.getAdversaryBoard();
         board.createTurnCover(this.getAdversary()
-        .getName())
-        .addEventListener('click', (e) => {
-            board.clearTurnCover();
-            this.startTurn(result);
-        });
+            .getName())
+            .addEventListener('click', (e) => {
+                board.clearTurnCover();
+                this.startTurn(result);
+            });
         board.displayBoard();
-        this.getAdversary().getDisplay().removeBoard();
+        this.getAdversaryBoard().removeBoard();
         this.turnNumber++;
     }
 
@@ -151,8 +162,8 @@ export class GameControl {
 
     // clear all variable to default
     resetGame() {
-            this.player1 = null;
-            this.player2 = null;
+            this.player1 = { player: null, board: null };
+            this.player2 = { player: null, board: null };
             this.multiplayer = false;
             this.selectMove = null;
             this.turnNumber = 0;

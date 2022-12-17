@@ -1,5 +1,4 @@
 import { Gameboard } from "./Gameboard";
-import { PlayBoard } from "./DOMControl";
 // holds player's gameboard, can determine next move if cpu 
 // pass an array of arrays in [ship size, ship index, is vertical(true/false)] format
 // to populate the gameboard
@@ -11,15 +10,10 @@ export class Player {
         this.nextMove = [];
         if (toAdd) { toAdd.forEach(ship => this.board.addShip(ship[0], ship[1], ship[2]) ); }
         else { this.randomBoard().forEach(ship => this.board.addShip(ship[0], ship[1], ship[2]) ); }
-        this.display = new PlayBoard(this.SIZE, this.getAllShipIndex());
     };
 
     getName() {
         return this.name;
-    }
-
-    getDisplay() {
-        return this.display;
     }
 
     getAllShipIndex() {
