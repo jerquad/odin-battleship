@@ -94,3 +94,11 @@ describe('cpuTurn adds missed results correctly', () => {
         expect(player.getMissIndex().includes(result)).toBeTruthy();       
     })
 })
+
+describe('randomBoard returns a valid and random set of ships to place', () => {
+    const player = new Player();
+    const random = palyer.randomBoard();
+    test('randomBoard returns an array', () => {
+        expect(Array.isArray(random)).toBeTruthy();
+    });
+})

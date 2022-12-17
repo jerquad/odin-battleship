@@ -9,7 +9,8 @@ export class Player {
         this.name = name;
         this.board = new Gameboard(this.SIZE);
         this.nextMove = [];
-        toAdd.forEach(ship => this.board.addShip(ship[0], ship[1], ship[2]) );
+        if (toAdd) { toAdd.forEach(ship => this.board.addShip(ship[0], ship[1], ship[2]) ); }
+        else { this.randomBoard().forEach(ship => this.board.addShip(ship[0], ship[1], ship[2]) ); }
         this.display = new PlayBoard(this.SIZE, this.getAllShipIndex());
     };
 
@@ -61,5 +62,10 @@ export class Player {
     randomMove() {
         const move = Math.floor(Math.random() * Math.pow(this.SIZE, 2));
         return (this.isValidMove(move)) ? move : this.randomMove();
+    }
+
+    randomBoard() {
+        const allShips = [];
+        return allShips;
     }
 };

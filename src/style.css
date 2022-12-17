@@ -309,19 +309,7 @@ button:disabled {
     user-select: none;
     font-family: 'Concert One', cursive;
     color: var(--button-fg-disable);
-    /* list-style: none; */
 }
-
-/* #toggle-body:before {
-    position: absolute;
-    height: 0;
-    width: 0;
-    top: 24px;
-    left: 81px;
-    content: '';
-    border: 16px solid transparent;
-    border-left-color: black;
-} */
 
 #submit-bar {
     display: flex;
@@ -342,6 +330,15 @@ button:disabled {
     display: grid;
     grid-template-columns: 1fr 1fr;
     border: 5px solid black;
+}
+
+#submit-mc.is-multi {
+    background-color: var(--main-bg);
+}
+
+#submit-mc.is-multi > #submit-mc-2,
+#submit-mc.is-multi > #submit-mc-m {
+    background-color: var(--button-fg-disable);
 }
 
 #submit-mc-2,

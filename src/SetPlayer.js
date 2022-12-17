@@ -3,9 +3,9 @@ import { adjustToIndex, buildSetPlayer, makeDragIcon } from './DOMHelpers.js';
 
 // Display for initialziing a player
 export class SetPlayer {
-    constructor(size, pieces) {
+    constructor(size, pieces, isMulti) {
         this.SIZE = size;
-        this.container = buildSetPlayer(size, pieces);
+        this.container = buildSetPlayer(size, pieces, isMulti);
         this.bindTray();
         this.dragEvent = {
             dragOver: null,

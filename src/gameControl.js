@@ -16,36 +16,29 @@ export class GameControl {
     startGame() {
         initializeDOM();
         this.createPlayer();
-        
-        // initializeDOM();
-
-        // this.dummySetPlayer();
-        // const board = this.getPlayer().getDisplay();
-        // if (this.multiplayer) {
-        //     board.createTurnCover(this.getPlayer()
-        //         .getName())
-        //         .addEventListener('click', (e) => board.clearTurnCover());
-        // };
-        // board.displayBoard();
     }
 
-    createPlayer() {
-        const setPlayer = new SetPlayer(10, [5, 4, 3, 3, 2]);
+    createPlayer(isMulti) {
+        const setPlayer = new SetPlayer(10, [5, 4, 3, 3, 2], isMulti);
         setPlayer.getButton().addEventListener('click', (e) => {
             const data = setPlayer.getData();
             setPlayer.remove();
+            // set second player
             if (this.player1) { 
                 this.player2 = new Player('player2', data.board);
+                this.bindBoard(this.player2);
                 const board = this.getPlayer().getDisplay();
                 board.createTurnCover(this.getPlayer()
                 .getName())
                 .addEventListener('click', (e) => board.clearTurnCover());
                 board.displayBoard();
+            // set first player and prompt for second
             } else if (data.multi) {
                 this.player1 = new Player('player1', data.board);
                 this.bindBoard(this.player1);
                 this.multiplayer = true;
-                this.createPlayer();
+                this.createPlayer(true);
+            // set single player and set cpu player
             } else {
                 this.player1 = new Player('player1', data.board);
                 this.bindBoard(this.player1);

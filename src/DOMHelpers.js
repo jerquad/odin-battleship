@@ -35,33 +35,38 @@ export function buildGrid(sideSize, addClass) {
 // setPlayer DOM builders
 
 // container for icons indexes the icons on order added
-export function buildSetPlayer(size, pieces) {
+export function buildSetPlayer(size, pieces, isMulti) {
     const container = makeElement('div', { id: 'set-container' });
     container.appendChild(buildGrid(size));
     container.appendChild(buildToggleBar());
     container.appendChild(makeTray(pieces));
-    container.appendChild(buildSubmitBar());
+    container.appendChild(buildSubmitBar(isMulti));
     return container;
 }
 
-function buildSubmitBar() {
+function buildSubmitBar(isMulti) {
     const container = makeElement('div', { id: 'submit-bar' });
     const buttonContainer = makeElement('div', { id: 'submit-bc' });
     buttonContainer.appendChild(makeElement('button', { id: 'submit-btn', disabled: 'true' }, 'CONTINUE'));
     container.appendChild(buttonContainer);
-    container.appendChild(buildSetMulti());
+    container.appendChild(buildSetMulti(isMulti));
     return container;
 }
 
-function buildSetMulti() {
+function buildSetMulti(isMulti) {
     const container = makeElement('div', { id: 'submit-mc' });
     const two = makeElement('div', { id: 'submit-mc-2' });
+    const check = makeElement('input', { type: 'checkbox', id: 'submit-chk' });
+    if (isMulti) { 
+        container.classList.add('is-multi');
+        check.setAttribute('disabled', 'true') 
+    };
     two.appendChild(makeElement('div', {}, 'T'));
     two.appendChild(makeElement('div', {}, 'W'));
     two.appendChild(makeElement('div', {}, 'O'));
     container.appendChild(two);
     container.appendChild(makeElement('div', { id: 'submit-mc-m' }, 'PLAY'));
-    container.appendChild(makeElement('input', { type: 'checkbox', id: 'submit-chk' }))
+    container.appendChild(check);
     return container;
 }
 
