@@ -3,13 +3,13 @@ import { Gameboard } from "./Gameboard";
 // pass an array of arrays in [ship size, ship index, is vertical(true/false)] format
 // to populate the gameboard
 export class Player {
-    constructor(name, toAdd = []) {
+    constructor(name, toAdd) {
         this.SIZE = 10;
         this.name = name;
         this.board = new Gameboard(this.SIZE);
         this.nextMove = [];
         if (toAdd) { toAdd.forEach(ship => this.board.addShip(ship[0], ship[1], ship[2]) ); }
-        else { this.randomBoard().forEach(ship => this.board.addShip(ship[0], ship[1], ship[2]) ); }
+        else { this.randomBoard([5, 4, 3, 3, 2]).forEach(ship => {this.board.addShip(ship[0], ship[1], ship[2])} ); }
     };
 
     getName() {
@@ -48,7 +48,6 @@ export class Player {
     cpuTurn() {
         let move;
         if (this.nextMove.length === 0) { move = this.randomMove(); }
-        // const result = this.takeHit(move);
         return move;
     }
 
@@ -58,8 +57,46 @@ export class Player {
         return (this.isValidMove(move)) ? move : this.randomMove();
     }
 
-    randomBoard() {
+    randomBoard(toAdd) {
         const allShips = [];
+        const board = new Array(Math.pow(this.SIZE, 2));
+        toAdd.forEach(ship => {
+            const check = allShips.length;
+            while (allShips.length === check) {
+                const isY = (Math.random() < 0.5);
+                const head = Math.floor(Math.random() * Math.pow(this.SIZE, 2));
+                const toPlace = this.getCoord(ship, head, isY);
+                if (toPlace[toPlace.length - 1] < Math.pow(this.SIZE, 2) && this.validShip(toPlace, isY) && this.validPlace(board, toPlace)) {
+                    toPlace.forEach(cell => {
+                        board[cell] = true});
+                    allShips.push([ship, head, isY]);
+                }
+            }
+        })
         return allShips;
+    }
+
+    getCoord(size, head, isY) {
+        const arr = [];
+        for (let i = 0; i < size; i++) {
+            arr.push(head);
+            if (isY) { head += this.SIZE; }
+            else { head += 1 }
+        }
+        return arr;
+    }
+
+    validShip(arr, isY) {
+        return (isY) 
+            ? (arr[0] % this.SIZE === arr[arr.length - 1] % this.SIZE)
+            : (Math.floor(arr[0] / this.SIZE) === Math.floor(arr[arr.length - 1] / this.SIZE)); 
+    }
+
+    validPlace(board, arr) {
+        let valid = true;
+        arr.forEach(index => {
+            if (board[index]) { valid = false }
+        })
+        return valid;
     }
 };

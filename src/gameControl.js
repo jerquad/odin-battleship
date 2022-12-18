@@ -44,7 +44,9 @@ export class GameControl {
                 this.player1.player = new Player('player1', data.board);
                 this.player1.board = new PlayBoard(this.SIZE, this.player1.player.getAllShipIndex());
                 this.bindBoard(this.player1);
-                this.dummySetPlayer();
+                this.player2.player = new Player('player2');
+                this.player2.board = new PlayBoard(this.SIZE, this.player2.player.getAllShipIndex());
+                this.bindBoard(this.player2);
                 this.getPlayerBoard().displayBoard();
             }
         });
@@ -118,8 +120,7 @@ export class GameControl {
         const result = this.getAdversary().takeHit(this.selectMove);
         this.getPlayerBoard().updatePlay(this.selectMove, result);
         if (this.getAdversary().isDefeated()) { 
-            this.getPlayer()
-                .board
+            this.getPlayerBoard()
                 .createGameOver('YOU WIN!')
                 .addEventListener('click', (e) => {
                     this.getPlayerBoard().removeBoard();

@@ -43,7 +43,9 @@ export class Gameboard {
         
         // inspect for any overlapping conflict
         for (let i = 0; i < toPlace.length; i++) {
-            if (this.board[toPlace[i]].ship) return false;
+            if (this.board[toPlace[i]].ship) {
+                // console.log('here');
+                return false;}
         };
 
         const newShip = new Ship(shipSize);
