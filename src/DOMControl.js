@@ -1,19 +1,17 @@
 import { makeElement, adjustToIndex, buildGrid } from './DOMHelpers.js';
-import { SetPlayer } from './SetPlayer.js';
 
-export function initializeDOM() {
+// First page load builder
+export function initializeDOM(size) {
+    const container = makeElement('div', { id: 'main-container' });
+    document.querySelector(':root').style.setProperty('--side-size', size + 1);
+    // hack to prevent unwanted dragging
     document.querySelector('body').setAttribute('ondragstart', 'return false;');
     document.querySelector('body').setAttribute('ondrop', 'return false');
-    const container = makeElement('div', { id: 'main-container' });
-
     container.appendChild(makeElement('div', { id: 'header' }));
     container.querySelector('#header').appendChild(makeElement('h1', {}, 'BATTLESHIP'));
     container.appendChild(makeElement('div', { id: 'footer' }));
     container.querySelector('#footer').appendChild(makeElement('p', {}, '&copy; 2022 Jimmy Quadros'));
-
     document.body.appendChild(container);
-    // const setPlayer = new SetPlayer(10, [5, 4, 3, 3, 2]);
-    // setPlayer.display();
 }
 
 // Display for the general play area

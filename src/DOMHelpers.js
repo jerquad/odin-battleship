@@ -7,6 +7,7 @@ export function makeElement(type, properties = {}, inner = null) {
     return element;
 }
 
+// Adjust an index value to compensate for any added guide values
 export function adjustToIndex(index, size) { 
     return (size + 1) * (index / size + 1) + 1;
 }
@@ -25,10 +26,6 @@ export function buildGrid(sideSize, addClass) {
         else if (i % (sideSize + 1) === 0) { gridBox.appendChild(makeElement('div', { class: 'guide-left'}, rowValue++)) }
         else { gridBox.appendChild(makeElement('div', { class: 'open-cell selectable', 'data-index': cellIndex++ })) };
     }
-
-    // Find a better home for this
-    document.querySelector(':root').style.setProperty('--side-size', sideSize + 1);
-    
     return gridBox;
 }
 
@@ -128,7 +125,6 @@ function makePieceIcon(size) {
         icon.appendChild(cell);
     }
     icon.dataset.size = size;
-    // icon.addEventListener('mousedown', (e) => this.dragStart(e));
     return icon;
 }
 

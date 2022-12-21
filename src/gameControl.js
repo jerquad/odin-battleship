@@ -14,10 +14,11 @@ export class GameControl {
 
     // begin the gameloop
     startGame() {
-        initializeDOM();
+        initializeDOM(this.SIZE);
         this.createPlayer();
     }
 
+    // Creates first player, determines if second player is player or CPU
     createPlayer(isMulti) {
         const setPlayer = new SetPlayer(10, [5, 4, 3, 3, 2], isMulti);
         setPlayer.getButton().addEventListener('click', (e) => {
@@ -51,29 +52,6 @@ export class GameControl {
             }
         });
         setPlayer.display();
-    }
-
-    // testing values
-    dummySetPlayer() {
-        const dummy1 = [
-            [5, 25, true],
-            [4, 83, false],
-            [3, 0, false],
-            [3, 51, true],
-            [2, 48, false]
-        ];
-        const dummy2 = [
-            [5, 95, false],
-            [4, 16, false],
-            [3, 53, false],
-            [3, 68, true],
-            [2, 12, true]
-        ]
-        // this.player1 = new Player('player1', dummy1);
-        // this.bindBoard(this.player1);
-        this.player2.player = new Player('player2', dummy2);
-        this.player2.board = new PlayBoard(this.SIZE, this.player2.player.getAllShipIndex());
-        this.bindBoard(this.player2)
     }
 
     // Determine the active player

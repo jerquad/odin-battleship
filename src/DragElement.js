@@ -1,3 +1,5 @@
+// Create a draggable item
+
 let element;
 let xOff;
 let yOff;
@@ -5,8 +7,8 @@ const moveHandler = move.bind(this);
 const endHandler = end.bind(this);
 
 
-export function DragElement(e, x, y) {
-    element = e;
+export function DragElement(elem, x, y) {
+    element = elem;
     xOff = x;
     yOff = y;
     window.addEventListener('mousemove', moveHandler, true);

@@ -265,7 +265,5 @@ export class SetPlayer {
         this.dragEvent.dragOver = null;
         this.dragEvent.dragGroup.forEach(cell => cell.classList.remove('hover'));
         this.dragEvent.dragGroup.length = 0;
-    }
-
-    
+    }   
 }

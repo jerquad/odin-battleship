@@ -38,16 +38,11 @@ export class Gameboard {
         // disallow placement beyond board's boundaries
         if (!vertical && ((head % this.SIZE) + shipSize > this.SIZE)) return false;
         if (vertical && (Math.floor(head / this.SIZE)) + shipSize > this.SIZE) return false;
-
         const toPlace = this.getIndeces(shipSize, head, vertical);
-        
         // inspect for any overlapping conflict
         for (let i = 0; i < toPlace.length; i++) {
-            if (this.board[toPlace[i]].ship) {
-                // console.log('here');
-                return false;}
+            if (this.board[toPlace[i]].ship) { return false;} 
         };
-
         const newShip = new Ship(shipSize);
         toPlace.forEach(index => {
             this.allPlaced.push(index);

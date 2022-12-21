@@ -57,6 +57,8 @@ export class Player {
         return (this.isValidMove(move)) ? move : this.randomMove();
     }
 
+    // returns a set of [ship size, ship index, is vertical(true/false)] such that 
+    // there is no overlap or conflics
     randomBoard(toAdd) {
         const allShips = [];
         const board = new Array(Math.pow(this.SIZE, 2));
@@ -66,16 +68,19 @@ export class Player {
                 const isY = (Math.random() < 0.5);
                 const head = Math.floor(Math.random() * Math.pow(this.SIZE, 2));
                 const toPlace = this.getCoord(ship, head, isY);
-                if (toPlace[toPlace.length - 1] < Math.pow(this.SIZE, 2) && this.validShip(toPlace, isY) && this.validPlace(board, toPlace)) {
-                    toPlace.forEach(cell => {
-                        board[cell] = true});
-                    allShips.push([ship, head, isY]);
+                if (toPlace[toPlace.length - 1] < Math.pow(this.SIZE, 2) 
+                    && this.validShip(toPlace, isY) 
+                    && this.validPlace(board, toPlace)) {
+                        toPlace.forEach(cell => {
+                            board[cell] = true});
+                        allShips.push([ship, head, isY]);
                 }
             }
         })
         return allShips;
     }
 
+    // return an array of grid coordinates either x or y aligned
     getCoord(size, head, isY) {
         const arr = [];
         for (let i = 0; i < size; i++) {
@@ -86,12 +91,14 @@ export class Player {
         return arr;
     }
 
+    // confirm if a sequence of indices are valid on a grid
     validShip(arr, isY) {
         return (isY) 
             ? (arr[0] % this.SIZE === arr[arr.length - 1] % this.SIZE)
             : (Math.floor(arr[0] / this.SIZE) === Math.floor(arr[arr.length - 1] / this.SIZE)); 
     }
 
+    // check if any overlap exists between board and candidated indices
     validPlace(board, arr) {
         let valid = true;
         arr.forEach(index => {
