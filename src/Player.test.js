@@ -90,9 +90,9 @@ describe('cpuTurn adds missed results correctly', () => {
     }
     test.each(tests)('cpuTurn correctly marks misses', (i) => {
         const result = player.cpuTurn();
-        player.takeHit(result);
+        player.takeHit(result.move);
         expect(player.getMissIndex().length).toBe(i + 1);
-        expect(player.getMissIndex().includes(result)).toBeTruthy();       
+        expect(player.getMissIndex().includes(result.move)).toBeTruthy();       
     })
 })
 
