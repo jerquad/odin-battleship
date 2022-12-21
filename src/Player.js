@@ -48,7 +48,10 @@ export class Player {
     cpuTurn() {
         let move;
         if (this.nextMove.length === 0) { move = this.randomMove(); }
-        return move;
+        return {
+            move: move,
+            result: this.takeHit(move)
+        };
     }
 
     // elect a valid free space to attack from the gameboard

@@ -132,11 +132,11 @@ export class GameControl {
 
     // Simulate an adversary's turn
     cpuTurn() {
-        this.selectMove = this.getPlayer().cpuTurn();
-        const result = this.getPlayer().takeHit(this.selectMove);
+        const cpu = this.getPlayer().cpuTurn()
+        this.selectMove = cpu.move;
         if (this.getPlayer().isDefeated()) { 
             this.getPlayer().getDisplay().createGameOver('YOU LOSE!'); 
-        } else { this.startTurn(result); }
+        } else { this.startTurn(cpu.result); }
     }
 
     // clear all variable to default
