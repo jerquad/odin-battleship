@@ -104,7 +104,7 @@ export class GameControl {
                     this.getPlayerBoard().removeBoard();
                     this.resetGame();
                     this.startGame();
-            }); 
+                }); 
         }
         else if (this.multiplayer) { this.switchTurn(result); }
         else { this.cpuTurn(); }
@@ -135,7 +135,13 @@ export class GameControl {
         const cpu = this.getPlayer().cpuTurn()
         this.selectMove = cpu.move;
         if (this.getPlayer().isDefeated()) { 
-            this.getPlayer().getDisplay().createGameOver('YOU LOSE!'); 
+            this.getPlayerBoard()
+            .createGameOver('YOU LOSE!')
+            .addEventListener('click', (e) => {
+                this.getPlayerBoard().removeBoard();
+                this.resetGame();
+                this.startGame();
+            });
         } else { this.startTurn(cpu.result); }
     }
 

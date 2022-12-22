@@ -33,8 +33,12 @@ export class Player {
         return this.board.isSunk();
     }
 
-    // returns either the hit ship or null
     takeHit(index) {
+        return (this.board.receiveAttack(index)) ? 'hit' : 'miss';
+    }
+
+    // returns either the hit ship or null
+    takeHitCPU(index) {
         const hit = this.board.receiveAttack(index);
         const target = (this.nextMove.length === 0) ? null : this.nextMove[0][0];
         console.log(target);
@@ -47,17 +51,16 @@ export class Player {
                 index - this.SIZE,
             ]);
         } else if (hit && this.isXTo(target, index)) {
-            console.log('bingo x');
-            this.nextMove[0].concat([
+            this.nextMove[0] = this.nextMove[0].concat([
                 index - 1,
                 target - 1,
                 index + 1]);
         } else if (hit) {
-            console.log('bingo y');
-            this.nextMove[0].concat([
-                index - this.SIZE,
+            this.nextMove[0] = this.nextMove[0].concat([
                 target - this.SIZE,
-                this.index + this.SIZE]);
+                target + this.SIZE,
+                index - this.SIZE,
+                index + this.SIZE]);
         }
         return (hit) ? 'hit' : 'miss';
     }
@@ -86,7 +89,7 @@ export class Player {
     // takes a cpu turn against player, returns move taken
     cpuTurn() {
         const move = this.getNextMove();
-        return { move: move, result: this.takeHit(move) };
+        return { move: move, result: this.takeHitCPU(move) };
     }
 
     // if no queued moves make a random move, clear a sunk ship, or return the next valid move
