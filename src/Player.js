@@ -35,7 +35,31 @@ export class Player {
 
     // returns either the hit ship or null
     takeHit(index) {
-        return (this.board.receiveAttack(index)) ? 'hit' : 'miss';
+        const hit = this.board.receiveAttack(index);
+        const target = (this.nextMove.length === 0) ? null : this.nextMove[0][0];
+        console.log(target);
+        if (hit && (!target || !this.board.isSameShip(target, index))) {
+            this.nextMove.push([
+                index,
+                index - 1,
+                index + this.SIZE,
+                index + 1,
+                index - this.SIZE,
+            ]);
+        } else if (hit && this.isXTo(target, index)) {
+            console.log('bingo x');
+            this.nextMove[0].concat([
+                index - 1,
+                target - 1,
+                index + 1]);
+        } else if (hit) {
+            console.log('bingo y');
+            this.nextMove[0].concat([
+                index - this.SIZE,
+                target - this.SIZE,
+                this.index + this.SIZE]);
+        }
+        return (hit) ? 'hit' : 'miss';
     }
 
     // confirms if a move is valid
@@ -44,11 +68,40 @@ export class Player {
         return !this.board.isHit(index);
     }
 
+    // confirms if indices is on the same row or column
+    isValidTo(from, to) {
+        if (this.isXTo(from, to)) { return true; }
+        if (this.isYTo(from, to)) { return true; }
+        return false;
+    }
+
+    isXTo(from, to) {
+        return Math.floor(from / this.SIZE) === Math.floor(to / this.SIZE);
+    }
+
+    isYTo(from, to) {
+        return from % this.SIZE === to % this.SIZE
+    }
+
     // takes a cpu turn against player, returns move taken
     cpuTurn() {
-        let move;
-        if (this.nextMove.length === 0) { move = this.randomMove(); }
+        const move = this.getNextMove();
         return { move: move, result: this.takeHit(move) };
+    }
+
+    // if no queued moves make a random move, clear a sunk ship, or return the next valid move
+    getNextMove() {
+        if (this.nextMove.length === 0) { return this.randomMove() 
+        } else if (this.board.isSunkAt(this.nextMove[0][0])) {
+            this.nextMove.shift();
+            return this.getNextMove();
+        } else {
+            const move = this.nextMove[0].pop();
+            if (!this.isValidMove(move) || !this.isValidTo(this.nextMove[0][0], move)) {
+                return this.getNextMove();
+            }
+            return move;
+        }
     }
 
     // elect a valid free space to attack from the gameboard

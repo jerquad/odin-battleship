@@ -33,6 +33,14 @@ export class Gameboard {
         return this.board[index].hit;
     }
 
+    isSunkAt(index) {
+        return this.board[index].ship.isSunk();
+    }
+
+    isSameShip(a, b) {
+        return this.board[a].ship === this.board[b].ship;
+    }
+
     // place new ship on gameboard returns ship or false if not legal placement
     addShip(shipSize, head, vertical = false) {
         // disallow placement beyond board's boundaries

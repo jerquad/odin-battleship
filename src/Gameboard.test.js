@@ -170,3 +170,37 @@ describe('getHit and getMiss work as intended', () => {
         expect(board.getMiss().length).toBe(1);
     });
 });
+
+describe('isSunkAt determines if a ship is sunk', () => {
+    const board = new Gameboard(10);
+    board.addShip(3, 0, false);
+    board.addShip(4, 15, true);
+    board.receiveAttack(0);
+    board.receiveAttack(1);
+    board.receiveAttack(2);
+    test('first ship is sunk', () => {
+        expect(board.isSunkAt(1)).toBeTruthy();
+    })
+    test('second ship is not sunk', () => {
+        expect(board.isSunkAt(25)).toBeFalsy();
+    })
+})
+
+describe('isSameShip performs as expected', () => {
+    const board = new Gameboard(10);
+    board.addShip(5, 0, false);
+    board.addShip(4, 69, true);
+    test('determines two ships are not the same', () => {
+        expect(board.isSameShip(0, 79)).toBeFalsy();
+    }) 
+    test('determine ship compared to empty are not the same', () => {
+        expect(board.isSameShip(36, 89)).toBeFalsy();
+        expect(board.isSameShip(2, 92)).toBeFalsy();
+    })
+    test('determine ships are the same', () =>  {
+        expect(board.isSameShip(0, 3)).toBeTruthy();
+        expect(board.isSameShip(0, 4)).toBeTruthy();
+        expect(board.isSameShip(69, 89)).toBeTruthy();
+        expect(board.isSameShip(89, 99)).toBeTruthy();
+    })
+}) 
