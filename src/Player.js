@@ -68,11 +68,8 @@ export class Player {
                 const isY = (Math.random() < 0.5);
                 const head = Math.floor(Math.random() * Math.pow(this.SIZE, 2));
                 const toPlace = this.getCoord(ship, head, isY);
-                if (toPlace[toPlace.length - 1] < Math.pow(this.SIZE, 2) 
-                    && this.validShip(toPlace, isY) 
-                    && this.validPlace(board, toPlace)) {
-                        toPlace.forEach(cell => {
-                            board[cell] = true});
+                if (toPlace[toPlace.length - 1] < Math.pow(this.SIZE, 2) && this.validShip(toPlace, isY) && this.validPlace(board, toPlace)) {
+                        toPlace.forEach(cell => { board[cell] = true });
                         allShips.push([ship, head, isY]);
                 }
             }

@@ -111,13 +111,18 @@ describe('randomBoard returns a valid and random set of ships to place', () => {
     random.forEach(item => {
         let index = item[1];
         for (let i = 0; i < item[0]; i++) {
-            test('no overlapping ships', () => {
-                expect(arr[index]).toBeFalsy()
-            });
             arr[index] = true;
             if (item[2]) { index += 10 }
             else { index += 1 }
         }
+    })
+    let added = 0;
+    for (let i = 0; i < 100; i++) {
+        if (arr[i]) { added++; }
+    }
+
+    test('added correct number of items', () => {
+        expect(added).toBe(17);
     })
 })
 
